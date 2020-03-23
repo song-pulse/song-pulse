@@ -3,11 +3,41 @@ from fastapi import FastAPI
 app = FastAPI()
 
 
-@app.get("/")
-def read_root():
-    return {"Hello": "World"}
+@app.get("/simulations")
+async def read_simulations():
+    return [{"id": 1,
+             "participantId": 2,
+             "running": False,
+             "timeRunning": "00:00",
+             "timeTotal": "12:40",
+             "song": "test - song"
+             },
+            {"id": 1,
+             "participantId": 2,
+             "running": False,
+             "timeRunning": "00:00",
+             "timeTotal": "12:40",
+             "song": "test - song"
+             }
+            ]
 
 
-@app.get("/items/{item_id}")
-def read_item(item_id: int, q: str = None):
-    return {"item_id": item_id, "q": q}
+@app.get("/simulations/{sim_id}")
+async def read_simulation(sim_id: int):
+    return {"id": sim_id,
+            "participantId": 2,
+            "running": False,
+            "timeRunning": "00:00",
+            "timeTotal": "12:40",
+            "song": "test - song"
+            }
+
+
+@app.post("/simulations")
+async def create_simulation(file: int, part_id: int):
+    return "OK"
+
+
+@app.put("/simulations/{sim_id}")
+async def start_stop_simulation(sim_id: int, running: bool):  # TODO start or stop
+    return "OK"
