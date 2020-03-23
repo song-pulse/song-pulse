@@ -39,5 +39,5 @@ async def create_simulation(file: int, part_id: int):
 
 
 @app.put("/simulations/{sim_id}")
-async def start_stop_simulation(sim_id: int, running: bool):  # TODO start or stop
+async def start_stop_simulation(sim_id: int, running: bool):
     return "OK"
