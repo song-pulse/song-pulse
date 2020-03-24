@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 app = FastAPI()
 
 origins = [
+    "https://stream-pulse.netlify.com/",
     "http://localhost",
     "http://localhost:8000",
 ]
