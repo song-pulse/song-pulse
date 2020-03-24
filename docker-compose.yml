@@ -1,0 +1,7 @@
+version: '3.7'
+services:
+  web:
+    build: .
+    image: "dikohl/song-pulse"
+    ports:
+      - "8080:8080"

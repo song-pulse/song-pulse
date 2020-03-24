@@ -4,4 +4,4 @@ RUN pip install fastapi uvicorn
 
 COPY ./app /app
 
-CMD uvicorn main:app --host=0.0.0.0 --port=${PORT:-5000}
+CMD uvicorn main:app --host=0.0.0.0 --port=${PORT:-8080}
