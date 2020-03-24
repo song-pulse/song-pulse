@@ -6,7 +6,7 @@ from pydantic import BaseModel
 app = FastAPI()
 
 origins = [
-    "https://stream-pulse.netlify.com/",
+    "https://stream-pulse.herokuapp.com",
     "http://localhost:8000",
 ]
 
