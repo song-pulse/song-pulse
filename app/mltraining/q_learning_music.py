@@ -1,3 +1,4 @@
+import numpy as np
 def main():
     print('hello world')  # just for testing purpose
     # TODO: 1) read in data (HRV/EDA or both)
@@ -7,6 +8,7 @@ def main():
     # baseline stress
     actions = [0, 1, 2]  # 3 different actions: lower music, stay same, upper music
     rewards = [-1, 0, 1] # possible rewards (the bigger the reward the better)
+    #Q_table_size = np.zeros (len(states),len(actions))
     set_parameters(alpha, gamma, states, actions, rewards)
     # TODO: define userrating mapping and how to integrate (scores fom 1 to 5 --> mapped to rewards)
     # TODO: define timesteps at which we get the data -> either HRV/EDA need to be combined and need to be same
