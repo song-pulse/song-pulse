@@ -1,3 +1,9 @@
 fastapi>=0.52.0,<0.54.0
 numpy
 pandas
+uvicorn
+psycopg2
+sqlalchemy
+pydantic
+alembic
+
