@@ -5,3 +5,7 @@ services:
     image: "dikohl/song-pulse"
     ports:
       - "8080:8080"
+  db:
+    image: "dikohl/postgres"
+    ports:
+      - "8001:5432"

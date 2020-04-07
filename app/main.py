@@ -1,7 +1,12 @@
-from fastapi import FastAPI, status
+from typing import List
+
+from fastapi import Depends, FastAPI, status
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
+from app import crud
+from app.database.session import Session
+from app.schemas.recording import Recording
 
 app = FastAPI()
 
@@ -18,16 +23,33 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
+# Dependency
+def get_db():
+    try:
+        db = Session()
+        yield db
+    finally:
+        db.close()
+
+
 class StartStop(BaseModel):
     start_stop: bool
+
 
 class CreateSim(BaseModel):
     file: bool
     participant_id: str
 
-@app.get("/simulations")
-async def read_simulations():
-    return [{"id": 1,
+
+@app.get("/simulations", response_model=List[Recording])
+async def read_simulations(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    recordings = crud.recording.get_multi(db, skip=skip, limit=limit)
+    print(recordings)
+    return recordings
+
+    """
+            [{"id": 1,
              "participantId": "DIMITRI",
              "running": True,
              "timeRunning": "13:40",
@@ -42,6 +64,7 @@ async def read_simulations():
              "song": "-"
              }
             ]
+    """
 
 
 @app.get("/simulations/{sim_id}")
