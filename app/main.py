@@ -7,6 +7,7 @@ from pydantic import BaseModel
 from app import crud
 from app.database.session import Session
 from app.schemas.recording import Recording
+from app.schemas.participant import Participant
 
 app = FastAPI()
 
@@ -42,10 +43,15 @@ class CreateSim(BaseModel):
     participant_id: str
 
 
+@app.get("/participants", response_model=List[Participant])
+async def read_simulations(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    recordings = crud.participant.get_multi(db, skip=skip, limit=limit)
+    return recordings
+
+
 @app.get("/simulations", response_model=List[Recording])
 async def read_simulations(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     recordings = crud.recording.get_multi(db, skip=skip, limit=limit)
-    print(recordings)
     return recordings
 
     """
