@@ -1,4 +1,6 @@
 from app import crud
+from app.schemas.participant import ParticipantCreate
+from app.schemas.song import SongCreate
 from app.schemas.recording import RecordingCreate
 from app.schemas.result import ResultCreate
 from app.schemas.run import RunCreate
@@ -16,8 +18,12 @@ def init_db(db_session):
     # the tables un-commenting the next line
     # Base.metadata.create_all(bind=engine)
 
-    recording = crud.recording.get(db_session, 1)
+    recording = crud.participant.get(db_session, 1)
     if not recording:
+        participant_in = ParticipantCreate(name="DIMITRI")
+        participant2_in = ParticipantCreate(name="ANJA")
+        song_in = SongCreate(name="TEST - SONG", link="www.link1.link")
+        song2_in = SongCreate(name="TEST2 - ANOTHER SONG", link="www.link2.link")
         recording_in = RecordingCreate(total_time=20050)
         recording2_in = RecordingCreate(total_time=3730)
         value_in = ValueCreate(type=55, value=33.3, timestamp=16940)
@@ -29,14 +35,18 @@ def init_db(db_session):
         result_in = ResultCreate(song="TEST - SONG", verdict=3, timestamp=16940)
         result2_in = ResultCreate(song="TEST2 - ANOTHER SONG", verdict=1, timestamp=140)
 
-        crud.recording.create_with_participant(db_session, obj_in=recording_in, participant_id=98)
+        crud.participant.create(db_session, obj_in=participant_in)
+        crud.song.create_with_participant(db_session, obj_in=song_in, participant_id=1)
+        crud.recording.create_with_participant(db_session, obj_in=recording_in, participant_id=1)
         crud.value.create_with_recording(db_session, obj_in=value_in, recording_id=1)
         crud.value.create_with_recording(db_session, obj_in=value_in2, recording_id=1)
         crud.value.create_with_recording(db_session, obj_in=value_in3, recording_id=1)
         crud.run.create_with_recoding(db_session, obj_in=run_in, recording_id=1)
         crud.result.create_with_run(db_session, obj_in=result_in, run_id=1)
 
-        crud.recording.create_with_participant(db_session, obj_in=recording2_in, participant_id=78)
+        crud.participant.create(db_session, obj_in=participant2_in)
+        crud.song.create_with_participant(db_session, obj_in=song2_in, participant_id=2)
+        crud.recording.create_with_participant(db_session, obj_in=recording2_in, participant_id=2)
         crud.value.create_with_recording(db_session, obj_in=value_in4, recording_id=2)
         crud.run.create_with_recoding(db_session, obj_in=run2_in, recording_id=2)
         crud.result.create_with_run(db_session, obj_in=result2_in, run_id=2)
