@@ -22,8 +22,8 @@ def init_db(db_session):
     if not recording:
         participant_in = ParticipantCreate(name="DIMITRI")
         participant2_in = ParticipantCreate(name="ANJA")
-        song_in = SongCreate(name="TEST - SONG", link="www.link1.link")
-        song2_in = SongCreate(name="TEST2 - ANOTHER SONG", link="www.link2.link")
+        song_in = SongCreate(name="Hoechste Eisenbahn - Liedlein", link="https://open.spotify.com/track/7qjxi7PZDfXSMCcolbW5yt?si=F_4NW5FwSo2BGxbWk-ndqA")
+        song2_in = SongCreate(name="Tyler, the Creator - anderes Lied", link="https://open.spotify.com/track/3jHdKaLCkuNEkWcLVmQPCX?si=W7UHEeb0Rn68ULB5SSwCQw")
         recording_in = RecordingCreate(total_time=20050)
         recording2_in = RecordingCreate(total_time=3730)
         value_in = ValueCreate(type=55, value=33.3, timestamp=16940)
@@ -32,8 +32,8 @@ def init_db(db_session):
         value_in4 = ValueCreate(type=55, value=70.9, timestamp=150)
         run_in = RunCreate(is_running=True, current_time=17830)
         run2_in = RunCreate()
-        result_in = ResultCreate(song="TEST - SONG", verdict=3, timestamp=16940)
-        result2_in = ResultCreate(song="TEST2 - ANOTHER SONG", verdict=1, timestamp=140)
+        result_in = ResultCreate(song_id=1, verdict=3, timestamp=16940)
+        result2_in = ResultCreate(song_id=2, verdict=1, timestamp=140)
 
         crud.participant.create(db_session, obj_in=participant_in)
         crud.song.create_with_participant(db_session, obj_in=song_in, participant_id=1)
