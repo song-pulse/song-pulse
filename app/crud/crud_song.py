@@ -8,13 +8,13 @@ from app.schemas.song import SongCreate, SongUpdate
 
 class CRUDSong(CRUDBase[Song, SongCreate, SongUpdate]):
 
-    def create_with_participant(self, db_session: Session, obj_in: SongCreate, participant_id: int) -> Song:
+    def create_with_playlist(self, db_session: Session, obj_in: SongCreate, playlist_id: int) -> Song:
         obj_in_data = jsonable_encoder(obj_in)
-        fresh_recording = self.model(**obj_in_data, participant_id=participant_id)
-        db_session.add(fresh_recording)
+        fresh_song = self.model(**obj_in_data, playlist_id=playlist_id)
+        db_session.add(fresh_song)
         db_session.commit()
-        db_session.refresh(fresh_recording)
-        return fresh_recording
+        db_session.refresh(fresh_song)
+        return fresh_song
 
 
 song = CRUDSong(Song)

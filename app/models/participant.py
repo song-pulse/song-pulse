@@ -5,10 +5,10 @@ from app.database.base_class import Base
 
 
 class Participant(Base):
-    __tablename__ = "participants"
+    __tablename__ = "participant"
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String)
 
     recordings = relationship("Recording")
-    songs = relationship("Song")
+    playlists = relationship("Playlist")

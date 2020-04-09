@@ -5,10 +5,10 @@ from app.database.base_class import Base
 
 
 class Recording(Base):
-    __tablename__ = "recordings"
+    __tablename__ = "recording"
 
     id = Column(Integer, primary_key=True, index=True)
-    participant_id = Column(Integer, ForeignKey("participants.id"))
+    participant_id = Column(Integer, ForeignKey("participant.id"))
     total_time = Column(BigInteger)
 
     values = relationship("Value")

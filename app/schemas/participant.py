@@ -1,7 +1,7 @@
 from typing import List
 from pydantic import BaseModel
 
-from .song import Song
+from .playlist import Playlist
 from .recording import Recording
 
 
@@ -21,7 +21,7 @@ class ParticipantInDBBase(ParticipantBase):
     id: int
 
     recordings: List[Recording] = []
-    songs: List[Song] = []
+    playlists: List[Playlist] = []
 
     class Config:
         orm_mode = True

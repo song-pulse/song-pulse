@@ -5,12 +5,12 @@ from app.database.base_class import Base
 
 
 class Result(Base):
-    __tablename__ = "results"
+    __tablename__ = "result"
 
     id = Column(Integer, primary_key=True, index=True)
-    run_id = Column(Integer, ForeignKey("runs.id"))
+    run_id = Column(Integer, ForeignKey("run.id"))
     timestamp = Column(BigInteger)
-    song_id = Column(Integer, ForeignKey("songs.id"))
+    song_id = Column(Integer, ForeignKey("song.id"))
     verdict = Column(Integer)
 
     song = relationship("Song")

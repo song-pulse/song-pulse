@@ -4,3 +4,5 @@ from .crud_run import run
 from .crud_value import value
 from .crud_participant import participant
 from .crud_song import song
+from .crud_playlist import playlist
+from .crud_sensor import sensor
