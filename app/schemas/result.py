@@ -1,9 +1,11 @@
 from pydantic import BaseModel
 
+from .song import Song
+
 
 class ResultBase(BaseModel):
     timestamp: int
-    song: str
+    song_id: int
     verdict: int
 
 
@@ -18,6 +20,8 @@ class ResultUpdate(ResultBase):
 class ResultInDBBase(ResultBase):
     id: int
     run_id: int
+
+    song: Song
 
     class Config:
         orm_mode = True

@@ -5,3 +5,5 @@ from ..models.recording import Recording  # noqa
 from ..models.result import Result  # noqa
 from ..models.run import Run  # noqa
 from ..models.value import Value  # noqa
+from ..models.participant import Participant  # noqa
+from ..models.song import Song  # noqa

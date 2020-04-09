@@ -7,7 +7,7 @@ class Value(Base):
     __tablename__ = "values"
 
     id = Column(Integer, primary_key=True, index=True)
-    recording_id = Column(Integer, ForeignKey("recordings.id"), index=True)
-    type = Column(Integer, index=True)
-    timestamp = Column(BigInteger, index=True)
+    recording_id = Column(Integer, ForeignKey("recordings.id"))
+    type = Column(Integer)
+    timestamp = Column(BigInteger)
     value = Column(Float)

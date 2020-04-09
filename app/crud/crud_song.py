@@ -2,13 +2,13 @@ from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
 
 from app.crud.base import CRUDBase
-from app.models.recording import Recording
-from app.schemas.recording import RecordingCreate, RecordingUpdate
+from app.models.song import Song
+from app.schemas.song import SongCreate, SongUpdate
 
 
-class CRUDRecording(CRUDBase[Recording, RecordingCreate, RecordingUpdate]):
+class CRUDSong(CRUDBase[Song, SongCreate, SongUpdate]):
 
-    def create_with_participant(self, db_session: Session, obj_in: RecordingCreate, participant_id: int) -> Recording:
+    def create_with_participant(self, db_session: Session, obj_in: SongCreate, participant_id: int) -> Song:
         obj_in_data = jsonable_encoder(obj_in)
         fresh_recording = self.model(**obj_in_data, participant_id=participant_id)
         db_session.add(fresh_recording)
@@ -17,4 +17,4 @@ class CRUDRecording(CRUDBase[Recording, RecordingCreate, RecordingUpdate]):
         return fresh_recording
 
 
-recording = CRUDRecording(Recording)
+song = CRUDSong(Song)
