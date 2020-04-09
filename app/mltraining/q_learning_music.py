@@ -29,6 +29,7 @@ class SongPulseAgent:
                 reward + self.gamma * np.max(self.Q_table[new_state]) - self.Q_table[state][action])
         return
 
+
     def next_state_func(self):
         # transition function: input is a given state and action and this function returns the next_state when taking
         # action transition table -> position state,action entry denotes next state
