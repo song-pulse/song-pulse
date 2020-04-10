@@ -33,7 +33,7 @@ def upgrade():
     op.create_table('playlist',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('participant_id', sa.Integer(), nullable=True),
-    sa.Column('name', sa.String(), nullable=True),
+    sa.Column('type', sa.String(), nullable=True),
     sa.Column('link', sa.String(), nullable=True),
     sa.ForeignKeyConstraint(['participant_id'], ['participant.id'], ),
     sa.PrimaryKeyConstraint('id')

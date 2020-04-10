@@ -1,3 +1,4 @@
+from typing import List
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
 
@@ -15,6 +16,9 @@ class CRUDRecording(CRUDBase[Recording, RecordingCreate, RecordingUpdate]):
         db_session.commit()
         db_session.refresh(fresh_recording)
         return fresh_recording
+
+    def get_by_participant(self, db_session: Session, participant_id: int, skip=0, limit=100) -> List[Recording]:
+        return db_session.query(self.model).filter(self.model.participant_id == participant_id).offset(skip).limit(limit).all()
 
 
 recording = CRUDRecording(Recording)

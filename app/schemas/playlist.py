@@ -4,7 +4,7 @@ from .song import Song
 
 
 class PlaylistBase(BaseModel):
-    name: str
+    type: str
     link: str
 
 

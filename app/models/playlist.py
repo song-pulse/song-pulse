@@ -9,7 +9,7 @@ class Playlist(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     participant_id = Column(Integer, ForeignKey("participant.id"))
-    name = Column(String)
+    type = Column(String)
     link = Column(String)
 
     songs = relationship("Song")
