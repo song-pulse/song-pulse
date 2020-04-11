@@ -8,8 +8,8 @@ class Playlist(Base):
     __tablename__ = "playlist"
 
     id = Column(Integer, primary_key=True, index=True)
-    participant_id = Column(Integer, ForeignKey("participant.id"))
-    type = Column(String)
+    participant_id = Column(Integer, ForeignKey("participant.id"), index=True)
+    type = Column(String, index=True)
     link = Column(String)
 
     songs = relationship("Song")

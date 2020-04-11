@@ -1,13 +1,13 @@
 from typing import List
 
-from fastapi import Depends, FastAPI, status, File, UploadFile
+from fastapi import Depends, FastAPI, status, File, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 from app import crud
 from app.database.session import Session
 from app.schemas.sensor import Sensor, SensorCreate
-from app.schemas.playlist import Playlist, PlaylistCreate
+from app.schemas.playlist import Playlist, PlaylistCreate, PlaylistUpdate
 from app.schemas.recording import Recording, RecordingCreate
 from app.schemas.participant import Participant, ParticipantCreate
 
@@ -107,9 +107,17 @@ async def read_playlists(part_id: int, skip: int = 0, limit: int = 100, db: Sess
 
 @app.post("/participants/{part_id}/playlists", response_model=Playlist)
 async def create_playlist(*, part_id: int, playlist: PlaylistCreate, db: Session = Depends(get_db)):
-    fresh_playlist = crud.playlist.create_or_modify_with_participant(db, participant_id=part_id, obj_in=playlist)
-    # TODO create records for all the songs in the playlist!
+    fresh_playlist = crud.playlist.create_with_participant(db, participant_id=part_id, obj_in=playlist)
     return fresh_playlist
+
+
+@app.put("/participants/{part_id}/playlists", response_model=Playlist)
+async def create_playlist(*, part_id: int, playlist: PlaylistUpdate, db: Session = Depends(get_db)):
+    existing_playlist = crud.playlist.get_by_participant_and_type(db, part_id, playlist.type)
+    if not existing_playlist:
+        raise HTTPException(status_code=404, detail="Item not found")
+    updated_playlist = crud.playlist.update(db, db_obj=existing_playlist, obj_in=playlist)
+    return updated_playlist
 
 
 @app.get("/sensors", response_model=List[Sensor])

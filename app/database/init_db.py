@@ -45,7 +45,7 @@ def init_db(db_session):
         crud.sensor.create(db_session, obj_in=sensor2_in)
 
         crud.participant.create(db_session, obj_in=participant_in)
-        crud.playlist.create_or_modify_with_participant(db_session, obj_in=playlist_in, participant_id=1)
+        crud.playlist.create_with_participant(db_session, obj_in=playlist_in, participant_id=1)
         crud.song.create_with_playlist(db_session, obj_in=song_in, playlist_id=1)
         crud.recording.create_with_participant(db_session, obj_in=recording_in, participant_id=1)
         crud.value.create_with_recording(db_session, obj_in=value_in, recording_id=1)
@@ -55,7 +55,7 @@ def init_db(db_session):
         crud.result.create_with_run(db_session, obj_in=result_in, run_id=1)
 
         crud.participant.create(db_session, obj_in=participant2_in)
-        crud.playlist.create_or_modify_with_participant(db_session, obj_in=playlist2_in, participant_id=2)
+        crud.playlist.create_with_participant(db_session, obj_in=playlist2_in, participant_id=2)
         crud.song.create_with_playlist(db_session, obj_in=song2_in, playlist_id=2)
         crud.recording.create_with_participant(db_session, obj_in=recording2_in, participant_id=2)
         crud.value.create_with_recording(db_session, obj_in=value_in4, recording_id=2)
