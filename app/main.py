@@ -5,8 +5,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 from app import crud
+from app.parser.value_parser import parse_and_save_values
 from app.database.session import Session
 from app.schemas.sensor import Sensor, SensorCreate
+from app.schemas.file import File as OwnFile, FileCreate
 from app.schemas.playlist import Playlist, PlaylistCreate, PlaylistUpdate
 from app.schemas.recording import Recording, RecordingCreate
 from app.schemas.participant import Participant, ParticipantCreate
@@ -75,10 +77,9 @@ async def read_recordings(part_id: int, skip: int = 0, limit: int = 100, db: Ses
 
 
 @app.post("/participants/{part_id}/recordings", response_model=Recording)
-async def create_recording(files: List[UploadFile] = File(...), db: Session = Depends(get_db)):
-    # create new recording and all the values from the files, there needs to be a mapping sensor -> file in the body!
-    recordings = crud.recording.create(db, )
-    return recordings
+async def create_recording(*, part_id: int, recording: RecordingCreate, db: Session = Depends(get_db)):
+    fresh_recording = crud.recording.create_with_participant(db_session=db, obj_in=recording, participant_id=part_id)
+    return fresh_recording
 
 
 @app.get("/participants/{part_id}/recordings/{rec_id}", response_model=Recording)
@@ -92,11 +93,13 @@ async def delete_recording(*, rec_id: int, db: Session = Depends(get_db)):
     crud.recording.remove(db_session=db, id=rec_id) # TODO perhaps check if rec_id and part_id match
 
 
-@app.post("/participants/{part_id}/recordings/{rec_id}/sensor/{sensor_id}", response_model=Recording)
-async def read_recording(part_id: int, rec_id: int, sensor_id: int, file: UploadFile = File(...), db: Session = Depends(get_db)):
-    # recording already exists, then just add the values in the file to the values of the sensor.
-    recordings = crud.value.create(db, )
-    return recordings
+@app.post("/participants/{part_id}/recordings/{rec_id}/sensors/{sensor_id}", response_model=OwnFile)
+async def create_file_values(part_id: int, rec_id: int, sensor_id: int, file: UploadFile = File(...), db: Session = Depends(get_db)):
+    fresh_file = crud.file.create_with_recording(db_session=db, obj_in=FileCreate(sensor_id=sensor_id, name=file.filename), recording_id=rec_id)
+    await parse_and_save_values(db_session=db, file_id=fresh_file.id, file=file.file) # TODO what to do with this?
+    return fresh_file
+
+# TODO replace existing values!
 
 
 @app.get("/participants/{part_id}/playlists", response_model=List[Playlist])

@@ -3,7 +3,7 @@ from pydantic import BaseModel
 
 class ValueBase(BaseModel):
     timestamp: int
-    value: int
+    value: float
 
 
 class ValueCreate(ValueBase):

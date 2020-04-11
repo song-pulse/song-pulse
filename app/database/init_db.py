@@ -31,8 +31,6 @@ def init_db(db_session):
         song2_in = SongCreate(name="Hoechste Eisenbahn - Liedlein", link="https://open.spotify.com/track/7qjxi7PZDfXSMCcolbW5yt?si=F_4NW5FwSo2BGxbWk-ndqA")
         recording_in = RecordingCreate(total_time=20050)
         recording2_in = RecordingCreate(total_time=3730)
-        sensor_in = SensorCreate(name="EDA")
-        sensor2_in = SensorCreate(name="BVP")
         file_in = FileCreate(sensor_id=2, name="file1.csv")
         file2_in = FileCreate(sensor_id=1, name="file2.csv")
         file3_in = FileCreate(sensor_id=2, name="file3.csv")
@@ -45,8 +43,17 @@ def init_db(db_session):
         result_in = ResultCreate(song_id=1, verdict=3, timestamp=16940)
         result2_in = ResultCreate(song_id=2, verdict=1, timestamp=140)
 
+        sensor_in = SensorCreate(name="TEMP")
+        sensor2_in = SensorCreate(name="EDA")
+        sensor3_in = SensorCreate(name="BVP")
+        sensor4_in = SensorCreate(name="ACC")
+        sensor5_in = SensorCreate(name="IPI")
+
         crud.sensor.create(db_session, obj_in=sensor_in)
         crud.sensor.create(db_session, obj_in=sensor2_in)
+        crud.sensor.create(db_session, obj_in=sensor3_in)
+        crud.sensor.create(db_session, obj_in=sensor4_in)
+        crud.sensor.create(db_session, obj_in=sensor5_in)
 
         crud.participant.create(db_session, obj_in=participant_in)
         crud.playlist.create_with_participant(db_session, obj_in=playlist_in, participant_id=1)
