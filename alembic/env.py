@@ -59,6 +59,7 @@ def run_migrations_online():
 
     """
     connectable = create_engine(os.environ['DATABASE_URL'])
+    #connectable = create_engine("postgres://docker:docker@localhost:8001/docker")
 
     with connectable.connect() as connection:
         context.configure(

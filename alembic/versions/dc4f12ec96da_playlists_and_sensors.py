@@ -65,14 +65,22 @@ def upgrade():
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_song_id'), 'song', ['id'], unique=False)
-    op.create_table('value',
+    op.create_table('file',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('recording_id', sa.Integer(), nullable=True),
     sa.Column('sensor_id', sa.Integer(), nullable=True),
-    sa.Column('timestamp', sa.BigInteger(), nullable=True),
-    sa.Column('value', sa.Float(), nullable=True),
+    sa.Column('name', sa.String(), nullable=True),
     sa.ForeignKeyConstraint(['recording_id'], ['recording.id'], ),
     sa.ForeignKeyConstraint(['sensor_id'], ['sensor.id'], ),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_index(op.f('ix_file_id'), 'file', ['id'], unique=False)
+    op.create_table('value',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('file_id', sa.Integer(), nullable=True),
+    sa.Column('timestamp', sa.BigInteger(), nullable=True),
+    sa.Column('value', sa.Float(), nullable=True),
+    sa.ForeignKeyConstraint(['file_id'], ['file.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_value_id'), 'value', ['id'], unique=False)
@@ -168,6 +176,8 @@ def downgrade():
     op.drop_table('song')
     op.drop_index(op.f('ix_playlist_id'), table_name='playlist')
     op.drop_table('playlist')
+    op.drop_index(op.f('ix_file_id'), table_name='file')
+    op.drop_table('file')
     op.drop_index(op.f('ix_value_id'), table_name='value')
     op.drop_table('value')
     op.drop_index(op.f('ix_sensor_id'), table_name='sensor')

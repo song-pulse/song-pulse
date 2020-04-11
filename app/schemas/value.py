@@ -1,10 +1,7 @@
 from pydantic import BaseModel
 
-from .sensor import Sensor
-
 
 class ValueBase(BaseModel):
-    sensor_id: int
     timestamp: int
     value: int
 
@@ -19,9 +16,7 @@ class ValueUpdate(ValueBase):
 
 class ValueInDBBase(ValueBase):
     id: int
-    recording_id: int
-
-    sensor: Sensor
+    file_id: int
 
     class Config:
         orm_mode = True

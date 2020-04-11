@@ -6,3 +6,4 @@ from .crud_participant import participant
 from .crud_song import song
 from .crud_playlist import playlist
 from .crud_sensor import sensor
+from .crud_file import file

@@ -3,7 +3,7 @@ from typing import List
 from pydantic import BaseModel
 
 from .run import Run
-from .value import Value
+from .file import File
 
 
 class RecordingBase(BaseModel):
@@ -22,7 +22,7 @@ class RecordingInDBBase(RecordingBase):
     id: int
     participant_id: int
 
-    values: List[Value] = []
+    files: List[File] = []
     runs: List[Run] = []
 
     class Config:
