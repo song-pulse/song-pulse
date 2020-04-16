@@ -8,9 +8,9 @@ from app.schemas.value import ValueCreate, ValueUpdate
 
 class CRUDValue(CRUDBase[Value, ValueCreate, ValueUpdate]):
 
-    def create_with_recording(self, db_session: Session, obj_in: ValueCreate, recording_id: int) -> Value:
+    def create_with_file(self, db_session: Session, obj_in: ValueCreate, file_id: int) -> Value:
         obj_in_data = jsonable_encoder(obj_in)
-        fresh_value = self.model(**obj_in_data, recording_id=recording_id)
+        fresh_value = self.model(**obj_in_data, file_id=file_id)
         db_session.add(fresh_value)
         db_session.commit()
         db_session.refresh(fresh_value)

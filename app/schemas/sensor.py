@@ -1,32 +1,30 @@
 from pydantic import BaseModel
 
 
-class SongBase(BaseModel):
+class SensorBase(BaseModel):
     name: str
-    link: str
 
 
-class SongCreate(SongBase):
+class SensorCreate(SensorBase):
     pass
 
 
-class SongUpdate(SongBase):
+class SensorUpdate(SensorBase):
     pass
 
 
-class SongInDBBase(SongBase):
+class SensorInDBBase(SensorBase):
     id: int
-    playlist_id: int
 
     class Config:
         orm_mode = True
 
 
 # Properties to return to client
-class Song(SongInDBBase):
+class Sensor(SensorInDBBase):
     pass
 
 
 # Properties properties stored in DB
-class SongInDB(SongInDBBase):
+class SensorInDB(SensorInDBBase):
     pass

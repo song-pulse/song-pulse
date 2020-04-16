@@ -2,9 +2,8 @@ from pydantic import BaseModel
 
 
 class ValueBase(BaseModel):
-    type: int
     timestamp: int
-    value: int
+    value: float
 
 
 class ValueCreate(ValueBase):
@@ -17,7 +16,7 @@ class ValueUpdate(ValueBase):
 
 class ValueInDBBase(ValueBase):
     id: int
-    recording_id: int
+    file_id: int
 
     class Config:
         orm_mode = True
