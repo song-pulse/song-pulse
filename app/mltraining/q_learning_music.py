@@ -15,7 +15,7 @@ class SongPulseAgent:
         self.reward = self.rewards[1]  # default reward is 0
         self.state = self.states[1]  # default state is baseline stress (state 1)
         self.action = self.actions[1]  # default action is doing nothing (action 1)
-        print('stateslen', (len(self.states)))
+        print('states len', (len(self.states)))
         self.n_states = len(self.states)
         self.n_actions = len(self.actions)
         self.Q_table = np.zeros((self.n_states, self.n_actions), dtype=float, order='C')
@@ -28,7 +28,6 @@ class SongPulseAgent:
         self.Q_table[state, action] += self.alpha * (
                 reward + self.gamma * np.max(self.Q_table[new_state]) - self.Q_table[state][action])
         return
-
 
     def next_state_func(self):
         # transition function: input is a given state and action and this function returns the next_state when taking

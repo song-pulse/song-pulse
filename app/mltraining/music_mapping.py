@@ -34,9 +34,22 @@ class MusicMapping:
 
     # TODO: these two methods below are used later for q learning, or an alg that is similar to Q learning
     def map_state_action_to_reward(self):
-        return
-
-    def transition(self):
+        # the Reward_matrix is of size sxa and entry at (s,a) defines the reward given when being in state s and taking
+        # action a -> this is helpful for q learning later
+        # rewards can be either -1 (negative), 0 (neutral) or 1 (positive), goal is to maximize reward
+        Reward_matrix = np.zeros((self.n_states, self.n_actions), dtype=float, order='C')
+        Reward_matrix[0, 0] = -1
+        Reward_matrix[0, 1] = 0
+        Reward_matrix[0, 2] = 1
+        Reward_matrix[1, 0] = -1
+        Reward_matrix[1, 1] = 0
+        Reward_matrix[1, 2] = -1
+        Reward_matrix[2, 0] = 1
+        Reward_matrix[2, 1] = 0
+        Reward_matrix[2, 2] = -1
+        # TODO: make here a more fine grained rewarding scheme -> i.e. when sth is good vs. very good, bad vs. very bad
+        # This prints the reward when being in state self.state and taking action self.action
+        print('reward', Reward_matrix[self.state,self.action])
         return
 
 
@@ -48,3 +61,4 @@ if __name__ == "__main__":
     action = 2  # default action at beginning
     agent = MusicMapping(states, actions, state, action)
     agent.adapt_music()
+    agent.map_state_action_to_reward()  # this shows us how good taking a certain action in a certain state is
