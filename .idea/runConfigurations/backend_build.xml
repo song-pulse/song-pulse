@@ -7,16 +7,8 @@
         <option name="command" value="" />
         <option name="containerName" value="" />
         <option name="entrypoint" value="" />
-        <option name="envVars">
-          <list>
-            <DockerEnvVarImpl>
-              <option name="name" value="DATABASE_URL" />
-              <option name="value" value="postgres://docker:docker@db:5432/docker" />
-            </DockerEnvVarImpl>
-          </list>
-        </option>
         <option name="imageTag" value="dikohl/song-pulse" />
-        <option name="commandLineOptions" value="--rm -p 8080:5000 -e PORT=5000" />
+        <option name="commandLineOptions" value="" />
         <option name="sourceFilePath" value="Dockerfile" />
       </settings>
     </deployment>

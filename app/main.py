@@ -1,6 +1,6 @@
 from typing import List
 
-from fastapi import Depends, FastAPI, status, File, UploadFile, HTTPException
+from fastapi import Depends, FastAPI, status, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
@@ -8,8 +8,9 @@ from app import crud
 from app.parser.value_parser import parse_and_save_values
 from app.database.session import Session
 from app.schemas.sensor import Sensor, SensorCreate
-from app.schemas.file import File as OwnFile, FileCreate
+from app.schemas.file import File, FileCreate
 from app.schemas.playlist import Playlist, PlaylistCreate, PlaylistUpdate
+from app.schemas.value import Value, ValueCreate
 from app.schemas.recording import Recording, RecordingCreate
 from app.schemas.participant import Participant, ParticipantCreate
 
@@ -93,13 +94,22 @@ async def delete_recording(*, rec_id: int, db: Session = Depends(get_db)):
     crud.recording.remove(db_session=db, id=rec_id) # TODO perhaps check if rec_id and part_id match
 
 
-@app.post("/participants/{part_id}/recordings/{rec_id}/sensors/{sensor_id}", response_model=OwnFile)
-async def create_file_values(part_id: int, rec_id: int, sensor_id: int, file: UploadFile = File(...), db: Session = Depends(get_db)):
-    fresh_file = crud.file.create_with_recording(db_session=db, obj_in=FileCreate(sensor_id=sensor_id, name=file.filename), recording_id=rec_id)
-    await parse_and_save_values(db_session=db, file_id=fresh_file.id, file=file.file) # TODO what to do with this?
+@app.get("/participants/{part_id}/recordings/{rec_id}/files", response_model=List[File])
+async def get_files(part_id: int, rec_id: int, db: Session = Depends(get_db)):
+    fresh_files = crud.file.get_multi_for_recording(db_session=db, recording_id=rec_id)
+    return fresh_files
+
+
+@app.post("/participants/{part_id}/recordings/{rec_id}/files", response_model=File)
+async def create_file(*, part_id: int, rec_id: int, file: FileCreate, db: Session = Depends(get_db)):
+    fresh_file = crud.file.create_with_recording(db_session=db, obj_in=file, recording_id=rec_id)
     return fresh_file
 
-# TODO replace existing values!
+
+@app.post("/participants/{part_id}/recordings/{rec_id}/files/{file_id}/values", response_model=Value)
+async def create_value(*, part_id: int, rec_id: int, file_id: int, value: ValueCreate, db: Session = Depends(get_db)):
+    fresh_value = crud.value.create_with_file(db_session=db, obj_in=value, file_id=file_id)
+    return fresh_value
 
 
 @app.get("/participants/{part_id}/playlists", response_model=List[Playlist])
