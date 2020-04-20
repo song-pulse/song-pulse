@@ -7,7 +7,7 @@ from .file import File
 
 
 class RecordingBase(BaseModel):
-    total_time: int
+    name: str
 
 
 class RecordingCreate(RecordingBase):

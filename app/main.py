@@ -78,9 +78,9 @@ async def read_recording(rec_id: int, db: Session = Depends(get_db)):
     return recordings
 
 
-@app.delete("/participants/{part_id}/recordings/{rec_id}", response_model=Recording, status_code=status.HTTP_200_OK)
+@app.delete("/participants/{part_id}/recordings/{rec_id}", status_code=status.HTTP_200_OK)
 async def delete_recording(*, rec_id: int, db: Session = Depends(get_db)):
-    return crud.recording.remove(db_session=db, id=rec_id) # TODO perhaps check if rec_id and part_id match
+    crud.recording.remove(db_session=db, id=rec_id)  # TODO perhaps check if rec_id and part_id match
 
 
 @app.get("/participants/{part_id}/recordings/{rec_id}/files", response_model=List[File])
@@ -143,3 +143,8 @@ async def read_sensors(skip: int = 0, limit: int = 100, db: Session = Depends(ge
 async def create_sensors(*, sensor: SensorCreate, db: Session = Depends(get_db)):
     fresh_sensor = crud.sensor.create(db, sensor)
     return fresh_sensor
+
+
+@app.delete("/sensors/{sens_id}", status_code=status.HTTP_200_OK)
+async def delete_file(*, sens_id: int, db: Session = Depends(get_db)):
+    crud.sensor.remove(db_session=db, id=sens_id)
