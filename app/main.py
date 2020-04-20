@@ -2,10 +2,8 @@ from typing import List
 
 from fastapi import Depends, FastAPI, status, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
 
 from app import crud
-from app.parser.value_parser import parse_and_save_values
 from app.database.session import Session
 from app.schemas.sensor import Sensor, SensorCreate
 from app.schemas.file import File, FileCreate
@@ -39,15 +37,6 @@ def get_db():
         db.close()
 
 
-class StartStop(BaseModel):
-    start_stop: bool
-
-
-class CreateSim(BaseModel):
-    file: bool
-    participant_id: str
-
-
 @app.get("/participants", response_model=List[Participant])
 async def read_participants(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     recordings = crud.participant.get_multi(db, skip=skip, limit=limit)
@@ -68,7 +57,7 @@ async def read_participant(part_id: int, db: Session = Depends(get_db)):
 
 @app.delete("/participants/{part_id}", status_code=status.HTTP_200_OK)
 async def delete_participant(*, part_id: int, db: Session = Depends(get_db)):
-    crud.participant.remove(db_session=db, id=part_id) # TODO remove all other data of this participant
+    crud.participant.remove(db_session=db, id=part_id)
 
 
 @app.get("/participants/{part_id}/recordings", response_model=List[Recording])
@@ -89,9 +78,9 @@ async def read_recording(rec_id: int, db: Session = Depends(get_db)):
     return recordings
 
 
-@app.delete("/participants/{part_id}/recordings/{rec_id}", status_code=status.HTTP_200_OK)
+@app.delete("/participants/{part_id}/recordings/{rec_id}", response_model=Recording, status_code=status.HTTP_200_OK)
 async def delete_recording(*, rec_id: int, db: Session = Depends(get_db)):
-    crud.recording.remove(db_session=db, id=rec_id) # TODO perhaps check if rec_id and part_id match
+    return crud.recording.remove(db_session=db, id=rec_id) # TODO perhaps check if rec_id and part_id match
 
 
 @app.get("/participants/{part_id}/recordings/{rec_id}/files", response_model=List[File])
@@ -104,6 +93,17 @@ async def get_files(part_id: int, rec_id: int, db: Session = Depends(get_db)):
 async def create_file(*, part_id: int, rec_id: int, file: FileCreate, db: Session = Depends(get_db)):
     fresh_file = crud.file.create_with_recording(db_session=db, obj_in=file, recording_id=rec_id)
     return fresh_file
+
+
+@app.delete("/participants/{part_id}/recordings/{rec_id}/files{file_id}", response_model=File, status_code=status.HTTP_200_OK)
+async def create_file(*, part_id: int, rec_id: int, file_id: int, file: FileCreate, db: Session = Depends(get_db)):
+    return crud.file.remove(db_session=db, id=file_id)
+
+
+@app.get("/participants/{part_id}/recordings/{rec_id}/files/{file_id}/values", response_model=List[Value])
+async def get_values(part_id: int, rec_id: int, file_id: int, db: Session = Depends(get_db)):
+    fresh_value = crud.value.get_all_for_file(db_session=db, file_id=file_id)
+    return fresh_value
 
 
 @app.post("/participants/{part_id}/recordings/{rec_id}/files/{file_id}/values", response_model=Value)

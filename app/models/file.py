@@ -13,4 +13,4 @@ class File(Base):
     name = Column(String)
 
     sensor = relationship("Sensor")
-    values = relationship("Value")
+    values = relationship("Value", cascade="all,delete")

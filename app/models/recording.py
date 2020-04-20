@@ -11,5 +11,5 @@ class Recording(Base):
     participant_id = Column(Integer, ForeignKey("participant.id"))
     total_time = Column(BigInteger)
 
-    files = relationship("File")
-    runs = relationship("Run")
+    files = relationship("File", cascade="all,delete")
+    runs = relationship("Run", cascade="all,delete")

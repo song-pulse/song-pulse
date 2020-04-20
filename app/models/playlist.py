@@ -12,4 +12,4 @@ class Playlist(Base):
     type = Column(String, index=True)
     link = Column(String)
 
-    songs = relationship("Song")
+    songs = relationship("Song", cascade="all,delete")

@@ -10,5 +10,5 @@ class Participant(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String)
 
-    recordings = relationship("Recording")
-    playlists = relationship("Playlist")
+    recordings = relationship("Recording", cascade="all,delete")
+    playlists = relationship("Playlist", cascade="all,delete")

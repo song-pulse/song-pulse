@@ -16,5 +16,7 @@ class CRUDValue(CRUDBase[Value, ValueCreate, ValueUpdate]):
         db_session.refresh(fresh_value)
         return fresh_value
 
+    def get_all_for_file(self, db_session: Session, file_id: int) -> Value:
+        return db_session.query(self.model).filter(self.model.file_id == file_id).all()
 
 value = CRUDValue(Value)
