@@ -5,12 +5,12 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app import crud
 from app.database.session import Session
-from app.schemas.sensor import Sensor, SensorCreate
 from app.schemas.file import File, FileCreate
-from app.schemas.playlist import Playlist, PlaylistCreate, PlaylistUpdate
-from app.schemas.value import Value, ValueCreate
-from app.schemas.recording import Recording, RecordingCreate
 from app.schemas.participant import Participant, ParticipantCreate
+from app.schemas.playlist import Playlist, PlaylistCreate, PlaylistUpdate
+from app.schemas.recording import Recording, RecordingCreate
+from app.schemas.sensor import Sensor, SensorCreate
+from app.schemas.value import Value, ValueCreate
 
 app = FastAPI()
 
@@ -95,9 +95,9 @@ async def create_file(*, part_id: int, rec_id: int, file: FileCreate, db: Sessio
     return fresh_file
 
 
-@app.delete("/participants/{part_id}/recordings/{rec_id}/files{file_id}", response_model=File, status_code=status.HTTP_200_OK)
-async def create_file(*, part_id: int, rec_id: int, file_id: int, file: FileCreate, db: Session = Depends(get_db)):
-    return crud.file.remove(db_session=db, id=file_id)
+@app.delete("/participants/{part_id}/recordings/{rec_id}/files/{file_id}", status_code=status.HTTP_200_OK)
+async def delete_file(*, part_id: int, rec_id: int, file_id: int, db: Session = Depends(get_db)):
+    crud.file.remove(db_session=db, id=file_id)
 
 
 @app.get("/participants/{part_id}/recordings/{rec_id}/files/{file_id}/values", response_model=List[Value])
