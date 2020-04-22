@@ -1,6 +1,6 @@
 from typing import List
 
-from fastapi import Depends, FastAPI, status, HTTPException
+from fastapi import Depends, BackgroundTasks, FastAPI, status, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
 from app import crud
@@ -9,8 +9,11 @@ from app.schemas.file import File, FileCreate
 from app.schemas.participant import Participant, ParticipantCreate
 from app.schemas.playlist import Playlist, PlaylistCreate, PlaylistUpdate
 from app.schemas.recording import Recording, RecordingCreate
+from app.schemas.run import Run, RunCreate
 from app.schemas.sensor import Sensor, SensorCreate
 from app.schemas.value import Value, ValueCreate
+
+from app.preprocessing.stream import Stream
 
 app = FastAPI()
 
@@ -74,7 +77,7 @@ async def create_recording(*, part_id: int, recording: RecordingCreate, db: Sess
 
 @app.get("/participants/{part_id}/recordings/{rec_id}", response_model=Recording)
 async def read_recording(rec_id: int, db: Session = Depends(get_db)):
-    recordings = crud.recording.get(db, rec_id) # TODO perhaps check if rec_id and part_id match
+    recordings = crud.recording.get(db, rec_id)  # TODO perhaps check if rec_id and part_id match
     return recordings
 
 
@@ -110,6 +113,20 @@ async def get_values(part_id: int, rec_id: int, file_id: int, db: Session = Depe
 async def create_value(*, part_id: int, rec_id: int, file_id: int, value: ValueCreate, db: Session = Depends(get_db)):
     fresh_value = crud.value.create_with_file(db_session=db, obj_in=value, file_id=file_id)
     return fresh_value
+
+
+@app.get("/participants/{part_id}/recordings/{rec_id}/runs", response_model=List[Run])
+async def get_runs(*, rec_id: int, db: Session = Depends(get_db)):
+    fresh_runs = crud.run.get_all_for_recording(db_session=db, recording_id=rec_id)
+    return fresh_runs
+
+
+@app.post("/participants/{part_id}/recordings/{rec_id}/runs", response_model=Run)
+async def start_runs(*, rec_id: int, run: RunCreate, db: Session = Depends(get_db), background_tasks: BackgroundTasks):
+    run.is_running = True
+    fresh_run = crud.run.create_with_recoding(db_session=db, obj_in=run, recording_id=rec_id)
+    background_tasks.add_task(Stream.start, fresh_run, db)
+    return fresh_run
 
 
 @app.get("/participants/{part_id}/playlists", response_model=List[Playlist])

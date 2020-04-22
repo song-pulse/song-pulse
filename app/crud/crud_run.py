@@ -1,3 +1,4 @@
+from typing import List
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
 
@@ -15,6 +16,9 @@ class CRUDRun(CRUDBase[Run, RunCreate, RunUpdate]):
         db_session.commit()
         db_session.refresh(fresh_run)
         return fresh_run
+
+    def get_all_for_recording(self, db_session: Session, recording_id: int) -> List[Run]:
+        return db_session.query(self.model).filter(self.model.recording_id == recording_id).all()
 
 
 run = CRUDRun(Run)
