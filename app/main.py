@@ -129,6 +129,12 @@ async def start_runs(*, rec_id: int, run: RunCreate, db: Session = Depends(get_d
     return fresh_run
 
 
+@app.get("/participants/{part_id}/recordings/{rec_id}/runs/{run_id}", response_model=Run)
+async def get_run(run_id: int, db: Session = Depends(get_db)):
+    fresh_run = crud.run.get(db_session=db, id=run_id)
+    return fresh_run
+
+
 @app.get("/participants/{part_id}/playlists", response_model=List[Playlist])
 async def read_playlists(part_id: int, skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     playlists = crud.playlist.get_by_participant(db, participant_id=part_id, skip=skip, limit=limit)
