@@ -3,6 +3,7 @@ from pydantic import BaseModel
 
 class SensorBase(BaseModel):
     name: str
+    frequency: int
 
 
 class SensorCreate(SensorBase):

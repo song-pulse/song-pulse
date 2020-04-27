@@ -8,3 +8,4 @@ class Sensor(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String)
+    frequency = Column(Integer)

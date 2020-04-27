@@ -9,3 +9,4 @@ from ..models.participant import Participant  # noqa
 from ..models.song import Song  # noqa
 from ..models.playlist import Playlist  # noqa
 from ..models.sensor import Sensor  # noqa
+from ..models.file import File  # noqa

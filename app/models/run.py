@@ -12,4 +12,4 @@ class Run(Base):
     current_time = Column(BigInteger)
     is_running = Column(Boolean)
 
-    results = relationship("Result")
+    results = relationship("Result", cascade="all,delete")

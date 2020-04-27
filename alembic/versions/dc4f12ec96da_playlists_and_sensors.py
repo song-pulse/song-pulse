@@ -35,7 +35,7 @@ def upgrade():
     sa.Column('participant_id', sa.Integer(), nullable=True),
     sa.Column('type', sa.String(), nullable=True),
     sa.Column('link', sa.String(), nullable=True),
-    sa.ForeignKeyConstraint(['participant_id'], ['participant.id'], ),
+    sa.ForeignKeyConstraint(['participant_id'], ['participant.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_playlist_id'), 'playlist', ['id'], unique=False)
@@ -43,7 +43,7 @@ def upgrade():
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('participant_id', sa.Integer(), nullable=True),
     sa.Column('total_time', sa.BigInteger(), nullable=True),
-    sa.ForeignKeyConstraint(['participant_id'], ['participant.id'], ),
+    sa.ForeignKeyConstraint(['participant_id'], ['participant.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_recording_id'), 'recording', ['id'], unique=False)
@@ -52,7 +52,7 @@ def upgrade():
     sa.Column('recording_id', sa.Integer(), nullable=True),
     sa.Column('current_time', sa.BigInteger(), nullable=True),
     sa.Column('is_running', sa.Boolean(), nullable=True),
-    sa.ForeignKeyConstraint(['recording_id'], ['recording.id'], ),
+    sa.ForeignKeyConstraint(['recording_id'], ['recording.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_run_id'), 'run', ['id'], unique=False)
@@ -61,7 +61,7 @@ def upgrade():
     sa.Column('playlist_id', sa.Integer(), nullable=True),
     sa.Column('name', sa.String(), nullable=True),
     sa.Column('link', sa.String(), nullable=True),
-    sa.ForeignKeyConstraint(['playlist_id'], ['playlist.id'], ),
+    sa.ForeignKeyConstraint(['playlist_id'], ['playlist.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_song_id'), 'song', ['id'], unique=False)
@@ -70,7 +70,7 @@ def upgrade():
     sa.Column('recording_id', sa.Integer(), nullable=True),
     sa.Column('sensor_id', sa.Integer(), nullable=True),
     sa.Column('name', sa.String(), nullable=True),
-    sa.ForeignKeyConstraint(['recording_id'], ['recording.id'], ),
+    sa.ForeignKeyConstraint(['recording_id'], ['recording.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['sensor_id'], ['sensor.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
@@ -80,7 +80,7 @@ def upgrade():
     sa.Column('file_id', sa.Integer(), nullable=True),
     sa.Column('timestamp', sa.BigInteger(), nullable=True),
     sa.Column('value', sa.Float(), nullable=True),
-    sa.ForeignKeyConstraint(['file_id'], ['file.id'], ),
+    sa.ForeignKeyConstraint(['file_id'], ['file.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_value_id'), 'value', ['id'], unique=False)
@@ -90,7 +90,7 @@ def upgrade():
     sa.Column('timestamp', sa.BigInteger(), nullable=True),
     sa.Column('song_id', sa.Integer(), nullable=True),
     sa.Column('verdict', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['run_id'], ['run.id'], ),
+    sa.ForeignKeyConstraint(['run_id'], ['run.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['song_id'], ['song.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
