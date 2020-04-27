@@ -90,10 +90,10 @@ class DataCleaning(object):
 
         return relative_data
 
-    def get_eda_tendency(self, smoothed_data):
+    def get_eda_tendency(self, smoothed_eda_data, smoothed_acc_data):
         # TODO adapt to streaming scenario
-        start_time = float(smoothed_data.columns[0])
-        differences = smoothed_data.diff()
+        start_time = float(smoothed_eda_data.columns[0])
+        differences = smoothed_eda_data.diff()
         event_len = 0
         changed_by = 0
         prev_tendency = []
@@ -112,10 +112,11 @@ class DataCleaning(object):
                     event_len += 1
             elif event_len == self.min_duration:
                 event_time = start_time + idx * self.smoothing
-                events.append((event_time, changed_by))
                 event_len = 0
                 changed_by = 0
                 prev_tendency = []
+                if not self.validate_events(idx, smoothed_acc_data):
+                    events.append((event_time, changed_by))
             else:
                 changed_by = 0
                 event_len = 0
@@ -124,22 +125,32 @@ class DataCleaning(object):
         print('%s events detected in EDA data' % len(events))
         return events
 
-    def validate_events(self):
-        # TODO validate EDA with ACC
-        pass
+    def validate_events(self, idx, smooth_acc):
+        # TODO validate if approach is correct
+        print('validating eda event')
+        movement = True
+        idx_start = idx - self.acc_latency
+        acc_event_frame = smooth_acc.iloc[idx_start:idx].values
+        for i in range(1, self.acc_latency):
+            diff = float(acc_event_frame[i]) - float(acc_event_frame[i-1])
+            if self.acc_threshold >= diff and diff <= 0:
+                movement = False
+                return movement
+
+        return movement
 
 
 if __name__ == '__main__':
-    path = 'E4Data_2020_04_06/23.03.2020_Dimitri/'
+    path = '../../../E4Data_2020_04_06/23.03.2020_Dimitri/'
     clean_data = DataCleaning(smoothing=3,
                               eda_baseline='minimum',
                               eda_threshold=0.01,
-                              acc_threshold=0,
+                              acc_threshold=0.5,
                               acc_latency=3,
                               min_duration=3)
     eda = clean_data.normalize_eda(path)
     acc = clean_data.normalize_acc(path)
     relative_eda = clean_data.compute_baseline(eda)
-    clean_data.get_eda_tendency(relative_eda)
+    clean_data.get_eda_tendency(relative_eda, acc)
 
 
