@@ -6,6 +6,7 @@ class Stream:
 
     @staticmethod
     async def start(run, db_session):
+        # TODO: run.id --> to get runid
         files = crud.file.get_multi_for_recording(db_session, recording_id=run.recording_id)
         for file in files:
             values = crud.value.get_all_for_file(db_session, file_id=file.id)

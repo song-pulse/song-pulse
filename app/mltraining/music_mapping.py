@@ -49,7 +49,7 @@ class MusicMapping:
         Reward_matrix[2, 2] = -1
         # TODO: make here a more fine grained rewarding scheme -> i.e. when sth is good vs. very good, bad vs. very bad
         # This prints the reward when being in state self.state and taking action self.action
-        print('reward', Reward_matrix[self.state,self.action])
+        print('reward', Reward_matrix[self.state, self.action])
         return
 
 
