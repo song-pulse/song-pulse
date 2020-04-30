@@ -117,22 +117,16 @@ async def create_value(*, part_id: int, rec_id: int, file_id: int, value: ValueC
 
 @app.get("/participants/{part_id}/recordings/{rec_id}/runs", response_model=List[Run])
 async def get_runs(*, rec_id: int, db: Session = Depends(get_db)):
-    runs = crud.run.get_all_for_recording(db_session=db, recording_id=rec_id)
-    return runs
+    fresh_runs = crud.run.get_all_for_recording(db_session=db, recording_id=rec_id)
+    return fresh_runs
 
 
 @app.post("/participants/{part_id}/recordings/{rec_id}/runs", response_model=Run)
-async def start_run(*, rec_id: int, run: RunCreate, db: Session = Depends(get_db), background_tasks: BackgroundTasks):
+async def start_runs(*, rec_id: int, run: RunCreate, db: Session = Depends(get_db), background_tasks: BackgroundTasks):
     run.is_running = True
     fresh_run = crud.run.create_with_recoding(db_session=db, obj_in=run, recording_id=rec_id)
     background_tasks.add_task(Stream.start, fresh_run, db)
     return fresh_run
-
-
-@app.get("/participants/{part_id}/recordings/{rec_id}/runs/{run_id}", response_model=Run)
-async def get_run(*, run_id: int, db: Session = Depends(get_db)):
-    run = crud.run.get(db_session=db, id=run_id)
-    return run
 
 
 @app.get("/participants/{part_id}/playlists", response_model=List[Playlist])

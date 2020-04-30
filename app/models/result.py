@@ -12,6 +12,5 @@ class Result(Base):
     timestamp = Column(BigInteger)
     song_id = Column(Integer, ForeignKey("song.id"))
     verdict = Column(Integer)
-    input = Column(String)
 
     song = relationship("Song")
