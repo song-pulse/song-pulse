@@ -7,7 +7,6 @@ class ResultBase(BaseModel):
     timestamp: int
     song_id: int
     verdict: int
-    input: str
 
 
 class ResultCreate(ResultBase):
