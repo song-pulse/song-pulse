@@ -1,4 +1,5 @@
 import numpy as np
+from app import crud
 
 # alpha, gamma and epsilon are values between 0 and 1
 EPSILON = 0.5  # epsilon near 1 much exploration, epsilon near 0 more strategy among the q learning -> use adaptive one
@@ -113,7 +114,10 @@ class SongPulseAgent:
             best_action_index = self.Q_table[self.state].argmax()  # take the best action for the given current state
             self.action = self.actions[best_action_index]  # take best action
             print('best action for state', self.state, 'is', self.action)
-            # TODO: adapt_music(self.action, self.state) --> this function forwarded to server with music
+            # TODO DIMITRI: adapt_music(self.action, self.state) --> this function forwarded to server with music
+            # TODO: verdict(rating: in db), timestamp (comes directly from datacleaning), action, action: int
+            # TODO: mapping from int to string --> 0-> 'low' etc.
+            # TODO: runid
             # after a certain time a new state comes in
             i += 1
         print('run finished for all adaptions')
@@ -124,6 +128,7 @@ if __name__ == "__main__":
     agent.train()  # this fills the Q table in order for it to get an optimal policy
     num_adaptions = 11  # this number says for how long, i.e. how many intervals we look at
     # for example if we look for 900s and every 30s we want to change the music we have 900/30= 30 num_adaptions
+    # TODO Dimitri: crud.run.create()
     agent.run(num_adaptions=num_adaptions)
 # TODO: difference to other q learning algs -> the state should not get updated in the run phase as the state comes from
 # our measurements not and cannot be fully determined by us
