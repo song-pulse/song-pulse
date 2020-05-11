@@ -1,6 +1,7 @@
-import pandas as pd
-import numpy as np
 from datetime import datetime
+
+import numpy as np
+import pandas as pd
 
 
 class DataCleaning(object):
@@ -220,6 +221,15 @@ class DataCleaning(object):
             stress = True
 
         return stress
+
+    def run(self, data, eda_baseline, temp_baseline):  # TODO add a threshold and extend with other values
+        eda_tend = data.edaValue - eda_baseline
+        if eda_tend > 0:
+            return 2
+        elif eda_tend < 0:
+            return 0
+        else:
+            return 1
 
 
 if __name__ == '__main__':

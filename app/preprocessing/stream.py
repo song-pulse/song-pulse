@@ -1,12 +1,14 @@
 from app import crud
-from app.preprocessing.DataForTime import DataForTime
-from app.schemas.run import RunUpdate
+from app.preprocessing.data_for_time import DataForTime
+from app.preprocessing.learning_wrapper import LearningWrapper
+from app.schemas.result import ResultCreate
 
 
 class Stream:
 
     @staticmethod
     async def start(run, db_session):
+        learning = LearningWrapper()
         # The values for the different sensors are being stored in those lists.
         eda_data = []
         ibi_data = []
@@ -31,33 +33,34 @@ class Stream:
             values.list.sort(key=values.timestamp)
 
             # Store the file in the correct variable according to their sensor ID.
-            if file.sensor_id == 1:
+            if file.sensor.name.lower() == "TEMP".lower():
                 temp_data = values
-            elif file.sensor_id == 2:
+            elif file.sensor.name.lower() == "EDA".lower():
                 eda_data = values
-            elif file.sensor_id == 3:
+            elif file.sensor.name.lower() == "BVP".lower():
                 bvp_data = values
-            elif file.sensor_id == 4:
+            elif file.sensor.name.lower() == "ACC".lower():
                 acc_data = values
-            elif file.sensor_id == 5:
+            elif file.sensor.name.lower() == "IBI".lower():
                 ibi_data = values
 
         # Iterate over the eda file with its values
         for value in eda_data:
-            data_for_time_object = Stream.createdatafortimeobject(value, acc_data, acc_interval1, acc_interval2,
-                                                                  bvp_data, eda_data,
-                                                                  ibi_data, run,
-                                                                  temp_data)
-            print(data_for_time_object)
-
-        updated_run = RunUpdate(is_running=False, current_time=0)
-        crud.run.update(db_session=db_session, db_obj=run, obj_in=updated_run)
+            data_for_time_object = Stream.create_data_for_time_object(value, acc_data, acc_interval1, acc_interval2,
+                                                                      bvp_data, eda_data,
+                                                                      ibi_data, run,
+                                                                      temp_data)
+            song_id = learning.run(data_for_time_object)
+            result = ResultCreate(timestamp=value.timestamp, song_id=song_id, verdict=0,
+                                  input=str(data_for_time_object))
+            crud.result.create_with_run(db_session=db_session, obj_in=result, run_id=run.id)
 
     # This methods creates a data object for a given time stamp.
     # This object can then be given to the data cleaning for processing the data.
     @staticmethod
-    async def createdatafortimeobject(value, acc_data, acc_interval1, acc_interval2, bvp_data, eda_data, ibi_data, run,
-                                      temp_data):
+    async def create_data_for_time_object(value, acc_data, acc_interval1, acc_interval2, bvp_data, eda_data, ibi_data,
+                                          run,
+                                          temp_data):
         data_for_time = DataForTime()
 
         # first add the run ID plus the time stamp

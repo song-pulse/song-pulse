@@ -1,5 +1,4 @@
 import numpy as np
-from app import crud
 
 # alpha, gamma and epsilon are values between 0 and 1
 EPSILON = 0.5  # epsilon near 1 much exploration, epsilon near 0 more strategy among the q learning -> use adaptive one
@@ -122,6 +121,10 @@ class SongPulseAgent:
             i += 1
         print('run finished for all adaptions')
 
+    def run_with_tendency(self, tendency):
+        self.state = tendency
+        self.train()
+        return self.run(11)
 
 if __name__ == "__main__":
     agent = SongPulseAgent()

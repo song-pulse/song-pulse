@@ -13,13 +13,14 @@ class DataForTime:
     #   The BVP values of this specific time
 
     def __init__(self):
-
         self.timestamp = 0
         self.runId = 0
-        self.fileId = 0
 
         self.edaValue = 0
         self.ibiValue = 0
         self.accValues = []
         self.tempValue = 0
         self.bvpValue = 0
+
+    def __str__(self):
+        return str(self.timestamp) + " " + str(self.edaValue)  # TODO extend
