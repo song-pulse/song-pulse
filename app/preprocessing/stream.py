@@ -13,7 +13,6 @@ class Stream:
         acc_data = []
         temp_data = []
         bvp_data = []
-
         # The intervals are the data points for the acc before the time stamp.
         # They are later needed for the data cleaning.
         acc_interval1 = None
