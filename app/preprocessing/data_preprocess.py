@@ -13,7 +13,8 @@ class DataCleaning(object):
                  eda_baseline, eda_threshold,
                  acc_threshold, acc_latency,
                  temp_baseline, temp_latency,
-                 min_duration):
+                 min_duration, upper_stress_threshold,
+                 lower_stress_threshold):
         """
 
         :param smoothing: int: smoothing factor in seconds
@@ -25,6 +26,8 @@ class DataCleaning(object):
         :param min_duration: int: minimum number of smoothing factor units for a specific tendency to be registered as "event"
         """
         self.smoothing = smoothing
+        self.upper_threshold = upper_stress_threshold
+        self.lower_threshold = lower_stress_threshold
         self.eda_baseline = eda_baseline
         self.eda_threshold = eda_threshold
         self.acc_threshold = acc_threshold
@@ -100,6 +103,7 @@ class DataCleaning(object):
         # TODO match timestamp with EDA timestamp and get same time interval
         ibi, ibi_start = clean_data.load_ibi(path)
 
+
         pass
 
     def compute_hrv(self, normalized_ibi):
@@ -131,7 +135,7 @@ class DataCleaning(object):
         start_time = float(smoothed_eda_data.columns[0])
         differences = smoothed_eda_data.diff()
         event_len = 0
-        changed_by = 0
+        # changed_by = 0
         prev_tendency = []
         events = []
         idx = 0
@@ -144,25 +148,40 @@ class DataCleaning(object):
                     current_tendency = 'positive'
                 prev_tendency.append(current_tendency)
                 if len(set(prev_tendency)) == 1:
-                    changed_by += difference
+                    # changed_by += difference
                     event_len += 1
             elif event_len == self.min_duration:
                 event_time = start_time + idx * self.smoothing
                 event_len = 0
-                changed_by = 0
+                # changed_by = 0
                 prev_tendency = []
-                if self.validate_events(idx, smoothed_acc_data, smoothed_temp_data):
-                    events.append((event_time, changed_by))
+                eda_value = smoothed_eda_data.iloc[idx].values[0]
+                if self.validate_events(idx, smoothed_acc_data, smoothed_temp_data) and eda_value >= self.upper_threshold:
+                    stress_level = 1
+                elif eda_value <= self.lower_threshold:
+                    stress_level = -1
+                else:
+                    stress_level = 0
+
+                events.append((event_time, stress_level))
             else:
-                changed_by = 0
+                # changed_by = 0
                 event_len = 0
                 prev_tendency = []
             idx += 1
-        print('%s events detected in EDA data' % len(events))
+        high_stess_events = len([e for e in events if e[1] > 0])
+        low_stess_events = len([e for e in events if e[1] < 0])
+        print('===')
+        print('Overall %s events detected in EDA data' % len(events))
+        print('%s high stress events' % high_stess_events)
+        print('%s low stress events' % low_stess_events)
+        print('===')
+        print('\n\n')
+
         return events
 
     def validate_events(self, idx, smooth_acc, smooth_temp):
-        # TODO validate if approach is correct and add TEMP
+        # TODO validate if approach is correct
         # TODO extract event detection function for ACC and TEMP
         # Movement when relative ACC value increases over n time intervals (n=acc_latency)
         stress = False
@@ -183,42 +202,44 @@ class DataCleaning(object):
             print("setting movement to True")
             movement = True
         # TEMP: Stress when relative skin temperature decreases over n time intervals
-        print("start checking TEMP data")
-        temp_decrease = False
-        temp_end = idx + self.temp_latency + 1
-        temp_event_frame = smooth_temp[idx:temp_end]
-        temp_factor = 0
-        for i in range(0, self.temp_latency):
-            temp_diff = float(temp_event_frame[i]) - float(temp_event_frame[i+1])
-            if temp_diff < 0:
-                temp_factor += 1
-        print("temperature factor", temp_factor)
-        if temp_factor == self.temp_latency:
-            print("setting temp_decrease to True")
-            temp_decrease = True
+        # print("start checking TEMP data")
+        # temp_decrease = False
+        # temp_end = idx + self.temp_latency + 1
+        # temp_event_frame = smooth_temp.iloc[idx:temp_end].values
+        # temp_factor = 0
+        # for i in range(0, self.temp_latency):
+        #     temp_diff = float(temp_event_frame[i]) - float(temp_event_frame[i+1])
+        #     if temp_diff < 0:
+        #         temp_factor += 1
+        # print("temperature factor", temp_factor)
+        # if temp_factor == self.temp_latency:
+        #     print("setting temp_decrease to True")
+        #     temp_decrease = True
 
-        if not movement and temp_decrease:
+        if not movement:  # and temp_decrease:
             stress = True
 
         return stress
 
 
 if __name__ == '__main__':
-    path = '../../../E4Data_2020_04_06/23.03.2020_Dimitri/'
+    path = '../../../E4Data_2020_04_06/01.04.2020_Kathrin/'
     clean_data = DataCleaning(smoothing=3,
-                              eda_baseline='minimum',
+                              eda_baseline='mean',
                               eda_threshold=0.01,
                               acc_threshold=0.5,
                               acc_latency=3,
                               temp_baseline=0.3,
                               temp_latency=3,
-                              min_duration=3)
-    clean_data.normalize_ibi(path)
+                              min_duration=3,
+                              upper_stress_threshold=0.1,
+                              lower_stress_threshold=-0.1)
+    # clean_data.normalize_ibi(path)
     eda = clean_data.normalize_eda_and_temp(path, datatype="EDA")
     acc = clean_data.normalize_acc(path)
     temp = clean_data.normalize_eda_and_temp(path, datatype="TEMP")
     relative_eda = clean_data.compute_baseline(eda)
     relative_temp = clean_data.compute_baseline(temp)
-    clean_data.get_eda_tendency(relative_eda, acc)
+    clean_data.get_eda_tendency(relative_eda, acc, relative_temp)
 
 
