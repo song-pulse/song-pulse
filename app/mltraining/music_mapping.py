@@ -6,6 +6,7 @@ class MusicMapping:
         self.states = states
         self.actions = actions
         self.state = state
+        self.new_state = state
         self.action = action
         self.n_states = len(self.states)
         self.n_actions = len(self.actions)
@@ -24,7 +25,9 @@ class MusicMapping:
         Transition_matrix[2, 1] = 2
         Transition_matrix[2, 2] = 2
         print('Transition_matrix', Transition_matrix)
-        self.state = int(Transition_matrix[self.state, self.action])  # state after applying the corresponding action
+        print('state', self.state, 'action', self.action)
+        self.new_state = int(Transition_matrix[self.state, self.action])  # state after applying the corresponding action
+        print('new state after transitionmatrix', self.new_state)
         return
 
     def adapt_music(self):
@@ -49,8 +52,18 @@ class MusicMapping:
         Reward_matrix[2, 2] = -1
         # TODO: make here a more fine grained rewarding scheme -> i.e. when sth is good vs. very good, bad vs. very bad
         # This prints the reward when being in state self.state and taking action self.action
+        print('take action', self.action, 'in state',self.state)
         print('reward', Reward_matrix[self.state, self.action])
+        self.state = self.new_state
+        print('new state is', self.state)
         return
+
+    def run_with_tendency(self, tendency):
+        # tendency comes from learning wrapper
+        self.state = tendency
+        print('current state', self.state)
+        self.adapt_music()
+        self.map_state_action_to_reward() # this shows how good taking a certain action in a certain state is
 
 
 if __name__ == "__main__":
@@ -60,5 +73,4 @@ if __name__ == "__main__":
     state = 0  # default state at beginning
     action = 2  # default action at beginning
     agent = MusicMapping(states, actions, state, action)
-    agent.adapt_music()
-    agent.map_state_action_to_reward()  # this shows us how good taking a certain action in a certain state is
+    agent.run_with_tendency(tendency=0)

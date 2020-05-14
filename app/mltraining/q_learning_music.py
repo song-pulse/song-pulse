@@ -15,7 +15,9 @@ class SongPulseAgent:
         self.num_training = num_training
         self.states = [0, 1, 2]  # 0 means below baseline stress, 1 baseline stress, 2 above baseline stress
         self.actions = [0, 1, 2]  # 3 different actions: lower music, stay same, upper music
-        self.state = self.states[2]  # default state is baseline stress (state 1)
+        self.state = self.states[2]  # init state here but gets overwritten in the tendency fun
+        # self.state now comes from tendency and is assigned below
+        self.reward = 1  # initially reward is set to 1
         self.new_state = self.state  # initially new_state = state
         self.action = self.actions[1]  # default action is doing nothing (action 1)
         self.n_states = len(self.states)
@@ -52,18 +54,18 @@ class SongPulseAgent:
         Transition_matrix[2, 1] = 2
         Transition_matrix[2, 2] = 2
         self.new_state = Transition_matrix[self.state, self.action]
-        print('new state', self.new_state)
+        # print('new state', self.new_state)
         return self.new_state
 
     def choose_action(self, epsilon=EPSILON):
         if np.random.random() < epsilon:
             # randomly sample explore_rate percent of the time
-            self.action = np.random.choice((self.actions))
+            self.action = np.random.choice(self.actions)
         else:
             # take optimal action
             self.action = np.argmax(self.Q_table[self.state])
-            print(' HALLO qtable[self.state]', self.Q_table[self.state])
-            print('action', self.action)
+            # print(' HALLO qtable[self.state]', self.Q_table[self.state])
+            # print('action', self.action)
         return self.action
 
     def get_reward(self):
@@ -74,7 +76,8 @@ class SongPulseAgent:
         # 2 for an adaption which leads to the right state (i.e. state 1)
         if self.new_state == 1:
             self.reward = 3
-        elif (self.state == 2 & self.new_state == 0) | (self.state == 0 & self.new_state == 2) | (self.state == self.new_state & self.state !=1):
+        elif (self.state == 2 & self.new_state == 0) | (self.state == 0 & self.new_state == 2) | (
+                self.state == self.new_state & self.state != 1):
             self.reward = 2
             # TODO ensure that self.state is the old state -> otw give oldstate as an argument
             # case adaption in right direction but not state 1 or state which stays the same
@@ -89,31 +92,32 @@ class SongPulseAgent:
             done = False
 
             while not done:
-                print('old state', self.state)
+                # print('old state', self.state)
                 self.epsilon = self.get_adaptive_epsilon(e)
                 self.action = self.choose_action(self.state)
                 # TODO: here next state should be computed differently
                 self.new_state = self.next_state_func()
                 self.reward = self.get_reward()
-                print('reward is', self.reward)
+                # print('reward is', self.reward)
                 self.update_q_table()
-                print('qtable after update', self.Q_table)
+                # print('qtable after update', self.Q_table)
                 self.state = self.new_state
-                print('new state', self.state)
-            print('training finished')
+                # print('new state', self.state)
+            # print('training finished')
 
-    def run(self, num_adaptions):
+    def run(self, number_adaptions):
         # this runs the problem by taking the best possible action for a certain state by taking the q matrix
         # computed from the training phase
         # self.state is the incoming stress state the person is in
         # request to server with music like adapt_music(action) where the music gets adapted accordingly
         # num_adaptions denotes
         i = 0
-        while i <= num_adaptions:
+        while i <= number_adaptions:
             best_action_index = self.Q_table[self.state].argmax()  # take the best action for the given current state
             self.action = self.actions[best_action_index]  # take best action
             print('best action for state', self.state, 'is', self.action)
             # TODO DIMITRI: adapt_music(self.action, self.state) --> this function forwarded to server with music
+            # TODO Anja: here give a songid and save the already played songs
             # TODO: verdict(rating: in db), timestamp (comes directly from datacleaning), action, action: int
             # TODO: mapping from int to string --> 0-> 'low' etc.
             # TODO: runid
@@ -122,17 +126,20 @@ class SongPulseAgent:
         print('run finished for all adaptions')
 
     def run_with_tendency(self, tendency):
+        # tendency comes from learning wrapper and num_adaptions is just given here fixed
         self.state = tendency
         self.train()
         return self.run(11)
 
+
 if __name__ == "__main__":
     agent = SongPulseAgent()
-    agent.train()  # this fills the Q table in order for it to get an optimal policy
+    # agent.train()  # this fills the Q table in order for it to get an optimal policy
+    agent.run_with_tendency(tendency=1)  # tendency comes from the learning wrapper
     num_adaptions = 11  # this number says for how long, i.e. how many intervals we look at
     # for example if we look for 900s and every 30s we want to change the music we have 900/30= 30 num_adaptions
     # TODO Dimitri: crud.run.create()
-    agent.run(num_adaptions=num_adaptions)
+    agent.run(number_adaptions=num_adaptions)
 # TODO: difference to other q learning algs -> the state should not get updated in the run phase as the state comes from
 # our measurements not and cannot be fully determined by us
 
