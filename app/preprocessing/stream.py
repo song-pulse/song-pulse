@@ -55,6 +55,8 @@ class Stream:
                                   input=str(data_for_time_object))
             crud.result.create_with_run(db_session=db_session, obj_in=result, run_id=run.id)
 
+        # TODO SET RUN TO running = false
+
     # This methods creates a data object for a given time stamp.
     # This object can then be given to the data cleaning for processing the data.
     @staticmethod

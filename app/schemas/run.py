@@ -6,7 +6,6 @@ from .result import Result
 
 
 class RunBase(BaseModel):
-    current_time: int = 0
     is_running: bool = False
 
 

@@ -5,6 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app import crud
 from app.database.session import Session
+from app.preprocessing.stream import Stream
 from app.schemas.file import File, FileCreate
 from app.schemas.participant import Participant, ParticipantCreate
 from app.schemas.playlist import Playlist, PlaylistCreate, PlaylistUpdate
@@ -12,8 +13,6 @@ from app.schemas.recording import Recording, RecordingCreate
 from app.schemas.run import Run, RunCreate
 from app.schemas.sensor import Sensor, SensorCreate
 from app.schemas.value import Value, ValueCreate
-
-from app.preprocessing.stream import Stream
 
 app = FastAPI()
 
