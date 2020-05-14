@@ -51,7 +51,7 @@ class Stream:
                                                                       ibi_data, run,
                                                                       temp_data)
             song_id = learning.run(data_for_time_object)
-            result = ResultCreate(timestamp=value.timestamp, song_id=song_id, verdict=0,
+            result = ResultCreate(timestamp=value.timestamp, song_id=song_id, verdict=-1,
                                   input=str(data_for_time_object))
             crud.result.create_with_run(db_session=db_session, obj_in=result, run_id=run.id)
 

@@ -10,6 +10,7 @@ from app.schemas.file import File, FileCreate
 from app.schemas.participant import Participant, ParticipantCreate
 from app.schemas.playlist import Playlist, PlaylistCreate, PlaylistUpdate
 from app.schemas.recording import Recording, RecordingCreate
+from app.schemas.result import Result, ResultUpdate
 from app.schemas.run import Run, RunCreate
 from app.schemas.sensor import Sensor, SensorCreate
 from app.schemas.value import Value, ValueCreate
@@ -133,6 +134,12 @@ async def start_run(*, rec_id: int, run: RunCreate, db: Session = Depends(get_db
 async def get_run(*, run_id: int, db: Session = Depends(get_db)):
     run = crud.run.get(db_session=db, id=run_id)
     return run
+
+
+@app.put("/participants/{part_id}/recordings/{rec_id}/runs/{run_id}/results/{result_id}", response_model=Result)
+async def update_result(*, result: ResultUpdate, db: Session = Depends(get_db)):
+    updated_result = crud.result.update(db_session=db, obj_in=result)
+    return updated_result
 
 
 @app.get("/participants/{part_id}/playlists", response_model=List[Playlist])
