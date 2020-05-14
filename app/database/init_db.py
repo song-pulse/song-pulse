@@ -1,5 +1,6 @@
 from app import crud
 from app.schemas.participant import ParticipantCreate
+from app.schemas.setting import SettingCreate
 from app.schemas.song import SongCreate
 from app.schemas.recording import RecordingCreate
 from app.schemas.result import ResultCreate
@@ -75,3 +76,9 @@ def init_db(db_session):
         crud.value.create_with_file(db_session, obj_in=value_in4, file_id=3)
         crud.run.create_with_recoding(db_session, obj_in=run2_in, recording_id=2)
         crud.result.create_with_run(db_session, obj_in=result2_in, run_id=2)
+
+    setting = crud.setting.get(db_session, id=1)
+    if not setting:
+        setting = SettingCreate(stress_threshold=0.1, acc_threshold=0.5, eda_threshold=0.01, ibi_threshold=2,
+                                temp_baseline=0.3, temp_latency=3, duration=3)
+        crud.setting.create(db_session, setting)

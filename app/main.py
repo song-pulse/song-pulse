@@ -13,6 +13,7 @@ from app.schemas.recording import Recording, RecordingCreate
 from app.schemas.run import Run, RunCreate
 from app.schemas.sensor import Sensor, SensorCreate
 from app.schemas.value import Value, ValueCreate
+from app.schemas.setting import Setting, SettingUpdate
 
 app = FastAPI()
 
@@ -170,3 +171,15 @@ async def create_sensors(*, sensor: SensorCreate, db: Session = Depends(get_db))
 @app.delete("/sensors/{sens_id}", status_code=status.HTTP_200_OK)
 async def delete_file(*, sens_id: int, db: Session = Depends(get_db)):
     crud.sensor.remove(db_session=db, id=sens_id)
+
+
+@app.get("/settings", response_model=Setting)
+async def read_setting(db: Session = Depends(get_db)):
+    setting = crud.setting.get(db, id=1)
+    return setting
+
+
+@app.put("/settings", response_model=Setting)
+async def change_setting(*, setting: SettingUpdate, db: Session = Depends(get_db)):
+    updated_setting = crud.setting.update(db, setting)
+    return updated_setting

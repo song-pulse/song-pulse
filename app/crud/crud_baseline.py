@@ -8,9 +8,9 @@ from app.schemas.baseline import BaselineCreate, BaselineUpdate
 
 class CRUDBaseline(CRUDBase[Baseline, BaselineCreate, BaselineUpdate]):
 
-    def create(self, db_session: Session, obj_in: BaselineCreate) -> Baseline:
+    def create_with_part_sens_id(self, db_session: Session, obj_in: BaselineCreate, participant_id: int, sensor_id: int) -> Baseline:
         obj_in_data = jsonable_encoder(obj_in)
-        fresh_baseline = self.model(**obj_in_data)
+        fresh_baseline = self.model(**obj_in_data, participant_id=participant_id, sensor_id=sensor_id)
         db_session.add(fresh_baseline)
         db_session.commit()
         db_session.refresh(fresh_baseline)

@@ -4,9 +4,9 @@ from pydantic import BaseModel
 class SettingBase(BaseModel):
     stress_threshold: float
     acc_threshold: float
-    temp_threshold: float
     eda_threshold: float
     ibi_threshold: float
+    temp_baseline: float
     temp_latency: int
     duration: int
 
