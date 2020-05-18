@@ -137,8 +137,11 @@ async def get_run(*, run_id: int, db: Session = Depends(get_db)):
 
 
 @app.put("/participants/{part_id}/recordings/{rec_id}/runs/{run_id}/results/{result_id}", response_model=Result)
-async def update_result(*, result: ResultUpdate, db: Session = Depends(get_db)):
-    updated_result = crud.result.update(db_session=db, obj_in=result)
+async def update_result(*, result_id: int, result: ResultUpdate, db: Session = Depends(get_db)):
+    existing_result = crud.result.get(db_session=db, id=result_id)
+    if not existing_result:
+        raise HTTPException(status_code=404, detail="Item not found")
+    updated_result = crud.result.update(db_session=db, db_obj=existing_result ,obj_in=result)
     return updated_result
 
 
@@ -188,5 +191,8 @@ async def read_setting(db: Session = Depends(get_db)):
 
 @app.put("/settings", response_model=Setting)
 async def change_setting(*, setting: SettingUpdate, db: Session = Depends(get_db)):
-    updated_setting = crud.setting.update(db, setting)
+    existing_settings = crud.setting.get(db_session=db, id=1)
+    if not existing_settings:
+        raise HTTPException(status_code=404, detail="Item not found")
+    updated_setting = crud.setting.update(db_session=db, db_obj=existing_settings, obj_in=setting)
     return updated_setting
