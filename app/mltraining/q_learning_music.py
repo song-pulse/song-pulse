@@ -57,6 +57,11 @@ class SongPulseAgent:
         # print('new state', self.new_state)
         return self.new_state
 
+    def getFeedback(self):
+        # get feedback from the user input through the /participants/runs/recordings ... -> verdict attribut
+        # use getRun or updateResult --> see main.py
+        return
+
     def choose_action(self, epsilon=EPSILON):
         if np.random.random() < epsilon:
             # randomly sample explore_rate percent of the time
