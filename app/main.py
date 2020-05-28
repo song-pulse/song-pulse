@@ -141,7 +141,7 @@ async def update_result(*, result_id: int, result: ResultUpdate, db: Session = D
     existing_result = crud.result.get(db_session=db, id=result_id)
     if not existing_result:
         raise HTTPException(status_code=404, detail="Item not found")
-    updated_result = crud.result.update(db_session=db, db_obj=existing_result ,obj_in=result)
+    updated_result = crud.result.update(db_session=db, db_obj=existing_result, obj_in=result)
     return updated_result
 
 
