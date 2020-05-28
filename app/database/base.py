@@ -12,3 +12,4 @@ from ..models.sensor import Sensor  # noqa
 from ..models.file import File  # noqa
 from ..models.baseline import Baseline  # noqa
 from ..models.setting import Setting  # noqa
+from ..models.qtable import QTable  # noqa
