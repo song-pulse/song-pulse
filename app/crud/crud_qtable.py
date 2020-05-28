@@ -17,8 +17,8 @@ class CRUDQTable(CRUDBase[QTable, QTableCreate, QTableUpdate]):
         db_session.refresh(fresh_qtable)
         return fresh_qtable
 
-    def get_by_participant(self, db_session: Session, participant_id: int, skip=0, limit=100) -> List[QTable]:
-        return db_session.query(self.model).filter(self.model.participant_id == participant_id).offset(skip).limit(limit).all()
+    def get_by_participant(self, db_session: Session, participant_id: int) -> QTable:
+        return db_session.query(self.model).filter(self.model.participant_id == participant_id).first()
 
 
 qtable = CRUDQTable(QTable)
