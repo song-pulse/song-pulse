@@ -1,12 +1,20 @@
 import numpy as np
-
-from app.main import get_run
+from app.database.session import Session
+from app import crud
 
 # alpha, gamma and epsilon are values between 0 and 1
 EPSILON = 0.5  # epsilon near 1 much exploration, epsilon near 0 more strategy among the q learning -> use adaptive one
 ALPHA = 0.5
 GAMMA = 0.5
 NUM_TRAINING = 10
+
+
+def get_db():
+    try:
+        db = Session()
+        yield db
+    finally:
+        db.close()
 
 
 class SongPulseAgent:
@@ -67,17 +75,10 @@ class SongPulseAgent:
         self.new_state = self.next_state_func()  # next state from
         # TODO: combine these two and use this method instead of next_state_func
 
-
     def get_feedback(self):
-        # use getRun async def get_run(*, run_id: int, db: Session = Depends(get_db)):
-        #  <-- from this object we need results['verdict'] (see main.py)
-        # TODO: updateResult needed?
-        # TODO: get run_id and timestamp from preprocessing, as well as song_id
-        # TODO: take the results with the same timestamp as we have -> timestamp from now look at the last one (find the biggest timestamp that is smaller than the current)
-        tmp = await get_run(self.run_id)
+        tmp = crud.run.get(db_session=get_db(), id=self.run_id)
         verdict = tmp.results.last['verdict']  # this is a number 0,1, or 2 which corresponds to the state
         print('verdict', verdict)
-        # async def get_run(*, run_id: int, db: Session = Depends(get_db)): <-- from this object we need results['verdict']
         return verdict
 
     def save_qtable(self):
@@ -159,6 +160,7 @@ class SongPulseAgent:
         self.timestamp = timestamp
         self.run_id = run_id
         print('current state', self.state, 'self.run_id', self.run_id, 'self.timestamp', self.timestamp)
+        #print('self.getfeedback', self.get_feedback())
         self.train()
         return self.run(11)
 
