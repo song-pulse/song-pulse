@@ -158,7 +158,7 @@ async def create_playlist(*, part_id: int, playlist: PlaylistCreate, db: Session
 
 
 @app.put("/participants/{part_id}/playlists", response_model=Playlist)
-async def create_playlist(*, part_id: int, playlist: PlaylistUpdate, db: Session = Depends(get_db)):
+async def update_playlist(*, part_id: int, playlist: PlaylistUpdate, db: Session = Depends(get_db)):
     existing_playlist = crud.playlist.get_by_participant_and_type(db, part_id, playlist.type)
     if not existing_playlist:
         raise HTTPException(status_code=404, detail="Item not found")
