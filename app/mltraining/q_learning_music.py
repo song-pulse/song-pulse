@@ -1,5 +1,5 @@
 import numpy as np
-from app.database.session import Session
+from app.database.session import SessionLocal
 from app import crud
 
 # alpha, gamma and epsilon are values between 0 and 1
@@ -11,7 +11,7 @@ NUM_TRAINING = 10
 
 def get_db():
     try:
-        db = Session()
+        db = SessionLocal()
         yield db
     finally:
         db.close()
