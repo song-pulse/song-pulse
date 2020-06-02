@@ -11,6 +11,7 @@ class Setting(Base):
     acc_threshold = Column(Float)
     eda_threshold = Column(Float)
     ibi_threshold = Column(Float)
+    prr_threshold = Column(Float)
     temp_baseline = Column(Float)
     temp_latency = Column(Integer)
     duration = Column(Integer)

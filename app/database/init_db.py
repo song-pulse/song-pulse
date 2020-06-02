@@ -80,5 +80,5 @@ def init_db(db_session):
     setting = crud.setting.get(db_session, id=1)
     if not setting:
         setting = SettingCreate(stress_threshold=0.1, acc_threshold=0.5, eda_threshold=0.01, ibi_threshold=2,
-                                temp_baseline=0.3, temp_latency=3, duration=3)
+                                prr_threshold=3, temp_baseline=0.3, temp_latency=3, duration=3)
         crud.setting.create(db_session, setting)

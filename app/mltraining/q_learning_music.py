@@ -1,10 +1,20 @@
 import numpy as np
+from app.database.session import SessionLocal
+from app import crud
 
 # alpha, gamma and epsilon are values between 0 and 1
 EPSILON = 0.5  # epsilon near 1 much exploration, epsilon near 0 more strategy among the q learning -> use adaptive one
 ALPHA = 0.5
 GAMMA = 0.5
 NUM_TRAINING = 10
+
+
+def get_db():
+    try:
+        db = SessionLocal()
+        yield db
+    finally:
+        db.close()
 
 
 class SongPulseAgent:
@@ -16,6 +26,9 @@ class SongPulseAgent:
         self.states = [0, 1, 2]  # 0 means below baseline stress, 1 baseline stress, 2 above baseline stress
         self.actions = [0, 1, 2]  # 3 different actions: lower music, stay same, upper music
         self.state = self.states[2]  # init state here but gets overwritten in the tendency fun
+        self.timestamp = 23456789234  # bigint, assigned below
+        self.run_id = 3
+        self.feedback = 0
         # self.state now comes from tendency and is assigned below
         self.reward = 1  # initially reward is set to 1
         self.new_state = self.state  # initially new_state = state
@@ -57,9 +70,20 @@ class SongPulseAgent:
         # print('new state', self.new_state)
         return self.new_state
 
-    def getFeedback(self):
-        # get feedback from the user input through the /participants/runs/recordings ... -> verdict attribut
-        # use getRun or updateResult --> see main.py
+    def next_state_with_feedback(self):
+        self.feedback = self.get_feedback()  # feedback
+        self.new_state = self.next_state_func()  # next state from
+        # TODO: combine these two and use this method instead of next_state_func
+
+    def get_feedback(self):
+        tmp = crud.run.get(db_session=get_db(), id=self.run_id)
+        verdict = tmp.results.last['verdict']  # this is a number 0,1, or 2 which corresponds to the state
+        print('verdict', verdict)
+        return verdict
+
+    def save_qtable(self):
+        # TODO: make a call to the DB and save the current Q table after every adaption
+        # TODO: discuss with dimitri, where in the db this self.Q_table should go
         return
 
     def choose_action(self, epsilon=EPSILON):
@@ -130,9 +154,13 @@ class SongPulseAgent:
             i += 1
         print('run finished for all adaptions')
 
-    def run_with_tendency(self, tendency):
+    def run_with_tendency(self, tendency, timestamp, run_id):
         # tendency comes from learning wrapper and num_adaptions is just given here fixed
         self.state = tendency
+        self.timestamp = timestamp
+        self.run_id = run_id
+        print('current state', self.state, 'self.run_id', self.run_id, 'self.timestamp', self.timestamp)
+        #print('self.getfeedback', self.get_feedback())
         self.train()
         return self.run(11)
 
@@ -140,7 +168,8 @@ class SongPulseAgent:
 if __name__ == "__main__":
     agent = SongPulseAgent()
     # agent.train()  # this fills the Q table in order for it to get an optimal policy
-    agent.run_with_tendency(tendency=1)  # tendency comes from the learning wrapper
+    agent.run_with_tendency(tendency=1, timestamp=1233456789, run_id=3)  # tendency comes from the learning wrapper
+    # TODO: here tendency, timestamp and run_id come from data preprocess and stream
     num_adaptions = 11  # this number says for how long, i.e. how many intervals we look at
     # for example if we look for 900s and every 30s we want to change the music we have 900/30= 30 num_adaptions
     # TODO Dimitri: crud.run.create()

@@ -9,3 +9,4 @@ from .crud_sensor import sensor
 from .crud_setting import setting
 from .crud_song import song
 from .crud_value import value
+from .crud_qtable import qtable

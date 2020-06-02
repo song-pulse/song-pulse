@@ -6,6 +6,7 @@ class SettingBase(BaseModel):
     acc_threshold: float
     eda_threshold: float
     ibi_threshold: float
+    prr_threshold: float
     temp_baseline: float
     temp_latency: int
     duration: int
