@@ -94,13 +94,13 @@ class DataCleaning(object):
         if len(self.prev_mean_rr) >= self.settings.duration:
             if not self.detect_movement(data.acc_values):
                 if self.detect_mean_rr_change():
-                    # TODO change with mean rr threshold
+                    # TODO change with mean rr threshold?
                     mean_rr_stress = self.detect_stress_level(mean_rr, self.settings.stress_threshold)
                 else:
                     mean_rr_stress = self.prev_mean_rr_stress[-1]
         else:
             if not self.detect_movement(data.acc_values):
-                # TODO exchange threshold
+                # TODO exchange threshold?
                 if mean_rr > self.settings.stress_threshold:
                     mean_rr_stress = 2
                 elif mean_rr < (self.settings.stress_threshold * -1):
