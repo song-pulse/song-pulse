@@ -87,7 +87,6 @@ class DataCleaning(object):
         self.prev_eda_stress.append(eda_stress)
 
         # MeanRR
-        # TODO create meanRR stress threshold
         self.compute_mean_rr(data.ibi_value, ibi_baseline)
         mean_rr_change = self.detect_change(self.prev_mean_rr, self.settings.ibi_threshold)
         mean_rr_stress = self.validate_stress_level(data, self.prev_mean_rr, self.prev_mean_rr_stress,
@@ -97,8 +96,6 @@ class DataCleaning(object):
 
         # PRR20
         self.compute_prr20()
-        # TODO write function to determine change
-        # TODO include change threshold?
         prr20_change = self.detect_change(self.prev_mean_prr20, threshold=0.0)
         prr20_stress = self.validate_stress_level(data, self.prev_mean_prr20, self.prev_prr20_stress,
                                                   prr20_change, self.settings.prr_threshold)
