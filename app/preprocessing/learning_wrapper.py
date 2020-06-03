@@ -38,7 +38,7 @@ class LearningWrapper:
 
     def run(self, data, timestamp, run_id, db_session):
         self.calculate_eda_baseline(data.edaValue)
-        self.calculate_temp_baseline(data.edaValue)
+        self.calculate_temp_baseline(data.tempValue)
         self.calculate_ibi_baseline(data.ibiValue)
 
         tendency = 1  # TODO: self.cleaning.run(data, self.edaBaseline, self.ibiBaseline)

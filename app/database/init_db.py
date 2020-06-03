@@ -48,13 +48,15 @@ def init_db(db_session):
         result_in = ResultCreate(song_id=1, verdict=3, timestamp=16940, input="test")
         result2_in = ResultCreate(song_id=2, verdict=1, timestamp=140, input="value EDA changed to 1")
 
-        sensor_in = SensorCreate(name="TEMP", frequency=60)
-        sensor2_in = SensorCreate(name="EDA", frequency=180)
-        sensor3_in = SensorCreate(name="BVP", frequency=180)
+        sensor_in = SensorCreate(name="EDA", frequency=180)
+        sensor2_in = SensorCreate(name="IBI", frequency=180)
+        sensor3_in = SensorCreate(name="TEMP", frequency=60)
+        sensor4_in = SensorCreate(name="ACC", frequency=180)
 
         crud.sensor.create(db_session, obj_in=sensor_in)
         crud.sensor.create(db_session, obj_in=sensor2_in)
         crud.sensor.create(db_session, obj_in=sensor3_in)
+        crud.sensor.create(db_session, obj_in=sensor4_in)
 
         crud.participant.create(db_session, obj_in=participant_in)
         crud.playlist.create_with_participant(db_session, obj_in=playlist_in, participant_id=1)
