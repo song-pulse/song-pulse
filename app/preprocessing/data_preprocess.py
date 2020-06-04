@@ -19,6 +19,8 @@ class DataCleaning(object):
     def compute_mean_rr(self, ibi_value, ibi_baseline):
         relative_ibi = ibi_value - ibi_baseline
         self.prev_ibi.append(relative_ibi)
+        if len(self.prev_mean_rr) == 0:
+            return relative_ibi
         mean_rr = sum(self.prev_mean_rr)/float(len(self.prev_mean_rr))
         self.prev_mean_rr.append(mean_rr)
         return mean_rr
@@ -29,12 +31,15 @@ class DataCleaning(object):
         return prr20
 
     def detect_movement(self, acc_values):
-        if acc_values[2] > acc_values[1] > acc_values[0]:
-            diff = acc_values[2] - acc_values[1] - acc_values[0]
-            if diff >= self.settings.acc_threshold:
-                return True
-        else:
-            return False
+        # TODO:
+        # if len(acc_values) < 3:
+        #     return False
+        # if acc_values[2] > acc_values[1] > acc_values[0]:
+        #     diff = acc_values[2] - acc_values[1] - acc_values[0]
+        #     if diff >= self.settings.acc_threshold:
+        #         return True
+        # else:
+        return False
 
     def detect_stress_level(self, value, threshold):
         if value > threshold:
@@ -46,14 +51,16 @@ class DataCleaning(object):
 
     def validate_stress_level(self, data, prev_values, prev_stress, change, stress_threshold):
         stress_level = 1
+        if len(prev_stress) == 0:
+            return 1
         if len(prev_values) >= self.settings.duration:
-            if not self.detect_movement(data.acc_values):
+            if not self.detect_movement(data.accValues):
                 if change:
                     stress_level = self.detect_stress_level(prev_values[-1], stress_threshold)
                 else:
                     stress_level = prev_stress[-1]
             else:
-                if not self.detect_movement(data.acc_values):
+                if not self.detect_movement(data.accValues):
                     if prev_values[-1] > stress_threshold:
                         stress_level = 2
                     elif prev_values[-1] < (stress_threshold * -1):
@@ -61,6 +68,8 @@ class DataCleaning(object):
         return stress_level
 
     def detect_change(self, prev_values, threshold):
+        if len(prev_values) == 0:
+            return False
         diff = prev_values[-1] - prev_values[0]
         # detect and increase if values have been increasing constantly and the difference is above threshold
         if all(i < j for i, j in zip(prev_values, prev_values[1:])) and diff >= threshold:
@@ -87,7 +96,7 @@ class DataCleaning(object):
         self.prev_eda_stress.append(eda_stress)
 
         # MeanRR
-        self.compute_mean_rr(data.ibi_value, ibi_baseline)
+        self.compute_mean_rr(data.ibiValue, ibi_baseline)
         mean_rr_change = self.detect_change(self.prev_mean_rr, self.settings.ibi_threshold)
         mean_rr_stress = self.validate_stress_level(data, self.prev_mean_rr, self.prev_mean_rr_stress,
                                                     mean_rr_change, self.settings.stress_threshold)

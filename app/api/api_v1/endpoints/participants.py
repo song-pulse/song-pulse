@@ -101,10 +101,10 @@ async def get_runs(*, rec_id: int, db: Session = Depends(deps.get_db)):
 
 
 @router.post("/{part_id}/recordings/{rec_id}/runs", response_model=Run)
-async def start_run(*, rec_id: int, run: RunCreate, db: Session = Depends(deps.get_db), background_tasks: BackgroundTasks):
+async def start_run(*, part_id: int, rec_id: int, run: RunCreate, db: Session = Depends(deps.get_db), background_tasks: BackgroundTasks):
     run.is_running = True
     fresh_run = crud.run.create_with_recoding(db_session=db, obj_in=run, recording_id=rec_id)
-    background_tasks.add_task(Stream.start, fresh_run, db)
+    background_tasks.add_task(Stream.start, fresh_run, part_id, db)
     return fresh_run
 
 

@@ -7,8 +7,8 @@ from app.schemas.result import ResultCreate
 class Stream:
 
     @staticmethod
-    async def start(run, db_session):
-        learning = LearningWrapper()
+    async def start(run, part_id, db_session):
+        learning = LearningWrapper(db_session)
         # The values for the different sensors are being stored in those lists.
         eda_data = []
         ibi_data = []
@@ -50,7 +50,7 @@ class Stream:
                                                                       bvp_data, eda_data,
                                                                       ibi_data, run,
                                                                       temp_data)
-            song_id = learning.run(data_for_time_object, value.timestamp, run.id, db_session)
+            song_id = learning.run(data_for_time_object, value.timestamp, run.id, part_id, db_session)
             result = ResultCreate(timestamp=value.timestamp, song_id=song_id, verdict=-1,
                                   input=str(data_for_time_object))
             crud.result.create_with_run(db_session=db_session, obj_in=result, run_id=run.id)

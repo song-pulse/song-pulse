@@ -73,8 +73,9 @@ class SongPulseAgent:
 
     def get_feedback(self, db_session):
         tmp = crud.run.get(db_session=db_session, id=self.run_id)
-
-        verdict = tmp.results.last['verdict']  # this is a number 0,1, or 2 which corresponds to the state
+        if len(tmp.results) == 0:
+            return 1
+        verdict = tmp.results[-1].verdict  # this is a number 0,1, or 2 which corresponds to the state
         qtable = crud.qtable.create_with_participant(db_session=db_session, obj_in=QTableCreate(data='testdata'), participant_id=1)
         print('verdict', verdict)
         return verdict
