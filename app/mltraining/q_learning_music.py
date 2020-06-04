@@ -174,10 +174,4 @@ if __name__ == "__main__":
     # for example if we look for 900s and every 30s we want to change the music we have 900/30= 30 num_adaptions
     # TODO Dimitri: crud.run.create()
     agent.run(number_adaptions=num_adaptions)
-# TODO: difference to other q learning algs -> the state should not get updated in the run phase as the state comes from
-# our measurements not and cannot be fully determined by us
 
-# TODO: define training and run data -> with the training data we now and get the next state and reward -> with the
-# run data we don't but we just act according to the created policy
-
-# TODO: later compare with basic strategy music mapping
