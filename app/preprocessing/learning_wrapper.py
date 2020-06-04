@@ -4,7 +4,7 @@ from app.preprocessing.data_preprocess import DataCleaning
 
 class LearningWrapper:
 
-    def __init__(self):
+    def __init__(self, db_session):
         self.edaCount = 0
         self.edaBaseline = 0
         self.tempCount = 0
@@ -12,7 +12,7 @@ class LearningWrapper:
         self.ibiCount = 0
         self.ibiBaseline = 0
         self.learning = SongPulseAgent()
-        self.cleaning = DataCleaning()
+        self.cleaning = DataCleaning(db_session)
 
     def calculate_eda_baseline(self, current_value):  # TODO get baseline from database
         if self.edaBaseline == 0:

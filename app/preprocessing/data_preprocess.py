@@ -4,9 +4,9 @@ from app import crud
 
 class DataCleaning(object):
 
-    def __init__(self):
+    def __init__(self, db_session):
 
-        self.settings = crud.setting.get(db, id=1)
+        self.settings = crud.setting.get(db_session, id=1)
         self.prev_eda_tend = deque([], maxlen=self.settings.duration)
         self.temp_data = deque([], maxlen=self.settings.temp_latency)
         self.prev_eda_stress = deque([], maxlen=self.settings.duration)
