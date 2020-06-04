@@ -23,6 +23,7 @@ class SongPulseAgent:
         self.state = self.states[2]  # init state here but gets overwritten in the tendency fun
         self.timestamp = 23456789234  # bigint, assigned below
         self.run_id = 3
+        self.participant_id = 1
         self.feedback = 0
         # self.state now comes from tendency and is assigned below
         self.reward = 1  # initially reward is set to 1
@@ -151,12 +152,14 @@ class SongPulseAgent:
             i += 1
         print('run finished for all adaptions')
 
-    def run_with_tendency(self, tendency, timestamp, run_id, db_session):
+    def run_with_tendency(self, tendency, timestamp, run_id, participant_id, db_session):
         # tendency comes from learning wrapper and num_adaptions is just given here fixed
         self.state = tendency
         self.timestamp = timestamp
         self.run_id = run_id
-        print('current state', self.state, 'self.run_id', self.run_id, 'self.timestamp', self.timestamp)
+        self.participant_id = participant_id
+        print('current state', self.state, 'self.run_id', self.run_id, 'self.timestamp', self.timestamp,
+              'db_session', db_session)
         print('self.getfeedback', self.get_feedback(db_session))
         self.train()
         return self.run(11)
