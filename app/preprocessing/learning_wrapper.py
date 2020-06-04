@@ -1,10 +1,11 @@
 from app.mltraining.q_learning_music import SongPulseAgent
 from app.preprocessing.data_preprocess import DataCleaning
+from app import crud
 
 
 class LearningWrapper:
 
-    def __init__(self, db_session):
+    def __init__(self):
         self.edaCount = 0
         self.edaBaseline = 0
         self.tempCount = 0
@@ -12,7 +13,7 @@ class LearningWrapper:
         self.ibiCount = 0
         self.ibiBaseline = 0
         self.learning = SongPulseAgent()
-        self.cleaning = DataCleaning(db_session)
+        self.cleaning = DataCleaning()
 
     def calculate_eda_baseline(self, current_value):  # TODO get baseline from database
         if self.edaBaseline == 0:
@@ -43,5 +44,6 @@ class LearningWrapper:
 
         tendency = self.cleaning.run(data, self.edaBaseline, self.ibiBaseline)
         print(tendency)
-        # TODO add participant ID
+        participant_id = crud.participant.get(db_session, id=1).id
+        print(participant_id)
         return self.learning.run_with_tendency(tendency, timestamp, run_id, participant_id, db_session)
