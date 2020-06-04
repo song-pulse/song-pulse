@@ -1,4 +1,5 @@
 from typing import List
+from datetime import datetime
 
 from fastapi import APIRouter, Depends, BackgroundTasks, status, HTTPException
 from sqlalchemy.orm import Session
@@ -12,6 +13,7 @@ from app.schemas.recording import Recording, RecordingCreate
 from app.schemas.result import Result, ResultUpdate
 from app.schemas.run import Run, RunCreate
 from app.schemas.value import Value, ValueCreate
+from app.schemas.timestamp_values import TimestampValues
 from app.api import deps
 
 router = APIRouter()
@@ -140,3 +142,42 @@ async def update_playlist(*, part_id: int, playlist: PlaylistUpdate, db: Session
         raise HTTPException(status_code=404, detail="Item not found")
     updated_playlist = crud.playlist.update(db, db_obj=existing_playlist, obj_in=playlist)
     return updated_playlist
+
+
+# Starts a Recording session including a run!
+@router.post("/{part_id}/recordings/start", response_model=Run)
+def start_mobile_recording(*, part_id: int, db: Session = Depends(deps.get_db)):
+    recording = RecordingCreate(name=str(datetime.now()))
+    fresh_recording = crud.recording.create_with_participant(db_session=db, obj_in=recording, participant_id=part_id)
+    sensors = crud.sensor.get_multi(db_session=db)
+    for sensor in sensors:
+        file = FileCreate(sensor_id=sensor.id, name=sensor.name)
+        crud.file.create_with_recording(db_session=db, obj_in=file, recording_id=fresh_recording.id)
+    run = RunCreate(is_running=True)
+    fresh_run = crud.run.create_with_recoding(db_session=db, obj_in=run, recording_id=fresh_recording.id)
+    return fresh_run
+
+
+# Adds timestamp values to an existing recording / run, recording and run are in this case always a 1:1 connection.
+# So we don't need to specify a run_id, it's simply always the latest. This assumes that no one manually creates a run
+# during a recording session.
+# We do not save null values.
+@router.post("/{part_id}/recordings/{rec_id}/values/timestamps", response_model=Run)
+def create_mobile_value(*, part_id: int, rec_id: int, tv: TimestampValues, db: Session = Depends(deps.get_db)):
+    files = crud.file.get_multi_for_recording(db_session=db, recording_id=rec_id)
+    for file in files:
+        value = None
+        if "ibi" in file.name.lower() and tv.ibi is not None:
+            value = ValueCreate(timestamp=tv.timestamp, value1=tv.ibi)
+        if "eda" in file.name.lower() and tv.eda is not None:
+            value = ValueCreate(timestamp=tv.timestamp, value1=tv.eda)
+        if "temp" in file.name.lower() and tv.temp is not None:
+            value = ValueCreate(timestamp=tv.timestamp, value1=tv.temp)
+        if "acc" in file.name.lower() and tv.acc_x is not None:
+            value = ValueCreate(timestamp=tv.timestamp, value1=tv.acc_x, value2=tv.acc_y, value3=tv.acc_z)
+
+        if value is not None:
+            crud.value.create_with_file(db_session=db, obj_in=value, file_id=file.id)
+        # TODO call wrapper with the TimestampValues!
+    current_run = crud.run.get_first_for_recording(db_session=db, recording_id=rec_id)
+    return current_run

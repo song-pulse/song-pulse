@@ -20,5 +20,8 @@ class CRUDRun(CRUDBase[Run, RunCreate, RunUpdate]):
     def get_all_for_recording(self, db_session: Session, recording_id: int) -> List[Run]:
         return db_session.query(self.model).filter(self.model.recording_id == recording_id).all()
 
+    def get_first_for_recording(self, db_session: Session, recording_id: int) -> Run:
+        return db_session.query(self.model).filter(self.model.recording_id == recording_id).first()
+
 
 run = CRUDRun(Run)

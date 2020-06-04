@@ -1,20 +1,15 @@
 import numpy as np
+
 from app.database.session import SessionLocal
 from app import crud
 
 # alpha, gamma and epsilon are values between 0 and 1
+from app.schemas.qtable import QTableCreate
+
 EPSILON = 0.5  # epsilon near 1 much exploration, epsilon near 0 more strategy among the q learning -> use adaptive one
 ALPHA = 0.5
 GAMMA = 0.5
 NUM_TRAINING = 10
-
-
-def get_db():
-    try:
-        db = SessionLocal()
-        yield db
-    finally:
-        db.close()
 
 
 class SongPulseAgent:
@@ -75,9 +70,11 @@ class SongPulseAgent:
         self.new_state = self.next_state_func()  # next state from
         # TODO: combine these two and use this method instead of next_state_func
 
-    def get_feedback(self):
-        tmp = crud.run.get(db_session=get_db(), id=self.run_id)
+    def get_feedback(self, db_session):
+        tmp = crud.run.get(db_session=db_session, id=self.run_id)
+
         verdict = tmp.results.last['verdict']  # this is a number 0,1, or 2 which corresponds to the state
+        qtable = crud.qtable.create_with_participant(db_session=db_session, obj_in=QTableCreate(data='testdata'), participant_id=1)
         print('verdict', verdict)
         return verdict
 
@@ -154,13 +151,13 @@ class SongPulseAgent:
             i += 1
         print('run finished for all adaptions')
 
-    def run_with_tendency(self, tendency, timestamp, run_id):
+    def run_with_tendency(self, tendency, timestamp, run_id, db_session):
         # tendency comes from learning wrapper and num_adaptions is just given here fixed
         self.state = tendency
         self.timestamp = timestamp
         self.run_id = run_id
         print('current state', self.state, 'self.run_id', self.run_id, 'self.timestamp', self.timestamp)
-        #print('self.getfeedback', self.get_feedback())
+        print('self.getfeedback', self.get_feedback(db_session))
         self.train()
         return self.run(11)
 
