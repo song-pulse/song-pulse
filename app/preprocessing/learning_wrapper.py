@@ -36,11 +36,11 @@ class LearningWrapper:
             self.ibiBaseline = ((self.ibiBaseline * self.ibiCount) + current_value) / (self.ibiCount + 1)
         self.ibiCount += 1
 
-    def run(self, data, timestamp, run_id, part_id, db_session):
+    def run(self, data, timestamp, run_id, db_session):
         self.calculate_eda_baseline(data.edaValue)
         self.calculate_temp_baseline(data.tempValue)
         self.calculate_ibi_baseline(data.ibiValue)
 
         tendency = self.cleaning.run(data, self.edaBaseline, self.ibiBaseline)
         print(tendency)
-        return self.learning.run_with_tendency(tendency, timestamp, run_id, part_id, db_session)
+        return self.learning.run_with_tendency(tendency, timestamp, run_id, db_session)

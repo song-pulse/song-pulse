@@ -1,12 +1,13 @@
 from collections import deque, Counter
 from app import crud
+from app.api import deps
 
 
 class DataCleaning(object):
 
-    def __init__(self, db_session):
+    def __init__(self):
 
-        self.settings = crud.setting.get(db_session, id=1)
+        self.settings = crud.setting.get(next(deps.get_db()), id=1)
         self.prev_eda_tend = deque([], maxlen=self.settings.duration)
         self.temp_data = deque([], maxlen=self.settings.temp_latency)
         self.prev_eda_stress = deque([], maxlen=self.settings.duration)
