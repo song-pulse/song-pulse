@@ -43,4 +43,5 @@ class LearningWrapper:
 
         tendency = self.cleaning.run(data, self.edaBaseline, self.ibiBaseline)
         print(tendency)
-        return self.learning.run_with_tendency(tendency, timestamp, run_id, db_session)
+        # TODO add participant ID
+        return self.learning.run_with_tendency(tendency, timestamp, run_id, participant_id, db_session)
