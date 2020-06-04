@@ -117,21 +117,18 @@ class SongPulseAgent:
     def train(self):
         # simulate execution with rewards that we would get and train the model before running
         for e in range(self.num_training):
-            done = False
-
-            while not done:
-                # print('old state', self.state)
-                self.epsilon = self.get_adaptive_epsilon(e)
-                self.action = self.choose_action(self.state)
-                # TODO: here next state should be computed differently
-                self.new_state = self.next_state_func()
-                self.reward = self.get_reward()
-                # print('reward is', self.reward)
-                self.update_q_table()
-                # print('qtable after update', self.Q_table)
-                self.state = self.new_state
-                # print('new state', self.state)
-            # print('training finished')
+            # print('old state', self.state)
+            self.epsilon = self.get_adaptive_epsilon(e)
+            self.action = self.choose_action(self.state)
+            # TODO: here next state should be computed differently
+            self.new_state = self.next_state_func()
+            self.reward = self.get_reward()
+            # print('reward is', self.reward)
+            self.update_q_table()
+            # print('qtable after update', self.Q_table)
+            self.state = self.new_state
+            # print('new state', self.state)
+        # print('training finished')
 
     def run(self, number_adaptions):
         # this runs the problem by taking the best possible action for a certain state by taking the q matrix
