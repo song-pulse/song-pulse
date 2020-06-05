@@ -1,6 +1,6 @@
 FROM tiangolo/uvicorn-gunicorn-fastapi:python3.7
 
-RUN pip install fastapi uvicorn psycopg2 sqlalchemy pydantic alembic numpy pytz pandas python-multipart
+RUN pip install fastapi uvicorn psycopg2 sqlalchemy pydantic alembic numpy pytz pandas python-multipart celery
 
 COPY app /app/app
 COPY alembic /app/alembic

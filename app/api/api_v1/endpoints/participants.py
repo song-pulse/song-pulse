@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends, BackgroundTasks, status, HTTPException
 from sqlalchemy.orm import Session
 
 from app import crud
+from app.core.celery_app import celery_app
 from app.preprocessing.stream import Stream
 from app.schemas.file import File, FileCreate
 from app.schemas.participant import Participant, ParticipantCreate
@@ -101,10 +102,10 @@ async def get_runs(*, rec_id: int, db: Session = Depends(deps.get_db)):
 
 
 @router.post("/{part_id}/recordings/{rec_id}/runs", response_model=Run)
-async def start_run(*, part_id: int, rec_id: int, run: RunCreate, db: Session = Depends(deps.get_db), background_tasks: BackgroundTasks):
+async def start_run(*, part_id: int, rec_id: int, run: RunCreate, db: Session = Depends(deps.get_db)):
     run.is_running = True
     fresh_run = crud.run.create_with_recoding(db_session=db, obj_in=run, recording_id=rec_id)
-    background_tasks.add_task(Stream.start, fresh_run, part_id, db)
+    celery_app.send_task("app.worker.run", args=[part_id, rec_id, fresh_run.id])
     return fresh_run
 
 

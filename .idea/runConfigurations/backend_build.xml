@@ -9,7 +9,7 @@
         <option name="entrypoint" value="" />
         <option name="imageTag" value="dikohl/song-pulse" />
         <option name="commandLineOptions" value="" />
-        <option name="sourceFilePath" value="Dockerfile" />
+        <option name="sourceFilePath" value="api.dockerfile" />
       </settings>
     </deployment>
     <method v="2" />

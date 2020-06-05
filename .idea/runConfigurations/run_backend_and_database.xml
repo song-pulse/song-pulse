@@ -2,10 +2,26 @@
   <configuration default="false" name="run backend and database" type="docker-deploy" factoryName="docker-compose.yml" server-name="Docker">
     <deployment type="docker-compose.yml">
       <settings>
+        <option name="envVars">
+          <list>
+            <DockerEnvVarImpl>
+              <option name="name" value="SPOTIFY_ID" />
+              <option name="value" value="bcff380514c34d9c9e9c0f075368622f" />
+            </DockerEnvVarImpl>
+            <DockerEnvVarImpl>
+              <option name="name" value="SPOTIFY_SECRET" />
+              <option name="value" value="06abee92ed8e4b8180f1de73e6244ef9" />
+            </DockerEnvVarImpl>
+          </list>
+        </option>
+        <option name="removeVolumesOnComposeDown" value="true" />
+        <option name="commandLineOptions" value="--build" />
         <option name="services">
           <list>
             <option value="db" />
             <option value="web" />
+            <option value="worker" />
+            <option value="queue" />
           </list>
         </option>
         <option name="sourceFilePath" value="docker-compose.yml" />

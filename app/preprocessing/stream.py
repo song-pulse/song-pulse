@@ -1,4 +1,5 @@
 from app import crud
+from app.api import deps
 from app.preprocessing.data_for_time import DataForTime
 from app.preprocessing.learning_wrapper import LearningWrapper
 from app.schemas.result import ResultCreate
@@ -7,7 +8,7 @@ from app.schemas.result import ResultCreate
 class Stream:
 
     @staticmethod
-    async def start(run, part_id, db_session):
+    def start(part_id, rec_id, run_id):
         learning = LearningWrapper()
         # The values for the different sensors are being stored in those lists.
         eda_data = []
@@ -20,8 +21,9 @@ class Stream:
         acc_interval1 = None
         acc_interval2 = None
 
+        db_session = next(deps.get_db())
         # Get the files from the recording.
-        files = crud.file.get_multi_for_recording(db_session, recording_id=run.recording_id)
+        files = crud.file.get_multi_for_recording(db_session, recording_id=rec_id)
 
         # Iterate over the files.
         for file in files:
@@ -48,12 +50,12 @@ class Stream:
         for value in eda_data:
             data_for_time_object = Stream.create_data_for_time_object(value, acc_data, acc_interval1, acc_interval2,
                                                                       bvp_data, eda_data,
-                                                                      ibi_data, run,
+                                                                      ibi_data, run_id,
                                                                       temp_data)
-            song_id = learning.run(data_for_time_object, value.timestamp, run.id, part_id)
+            song_id = learning.run(data_for_time_object, value.timestamp, run_id, part_id)
             result = ResultCreate(timestamp=value.timestamp, song_id=song_id, verdict=-1,
                                   input=str(data_for_time_object))
-            crud.result.create_with_run(db_session=db_session, obj_in=result, run_id=run.id)
+            crud.result.create_with_run(db_session=db_session, obj_in=result, run_id=run_id)
 
         # TODO SET RUN TO running = false
 
@@ -61,12 +63,12 @@ class Stream:
     # This object can then be given to the data cleaning for processing the data.
     @staticmethod
     def create_data_for_time_object(value, acc_data, acc_interval1, acc_interval2, bvp_data, eda_data, ibi_data,
-                                          run,
+                                          run_id,
                                           temp_data):
         data_for_time = DataForTime()
 
         # first add the run ID plus the time stamp
-        data_for_time.runId = run.id
+        data_for_time.runId = run_id
         data_for_time.timestamp = value.timestamp
 
         # Add the values for the specific time.

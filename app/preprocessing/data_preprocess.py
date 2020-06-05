@@ -1,3 +1,4 @@
+import itertools
 from collections import deque, Counter
 from app import crud
 from app.api import deps
@@ -27,7 +28,9 @@ class DataCleaning(object):
         return mean_rr
 
     def compute_prr20(self):
-        prr20 = ((len([i for i in self.prev_ibi if i >= 20])) * 100) / float(len(self.prev_ibi) - 1)
+        if len(self.prev_ibi) == 1:
+            return 0
+        prr20 = ((len([i for i in self.prev_ibi if i >= 20])) * 100) / float(len(self.prev_ibi)-1)
         self.prev_mean_prr20.append(prr20)
         return prr20
 
@@ -72,10 +75,11 @@ class DataCleaning(object):
         if len(prev_values) == 0:
             return False
         diff = prev_values[-1] - prev_values[0]
+        sliced_prev_values = deque(itertools.islice(prev_values, 1, len(prev_values)))
         # detect and increase if values have been increasing constantly and the difference is above threshold
-        if all(i < j for i, j in zip(prev_values, prev_values[1:])) and diff >= threshold:
+        if all(i < j for i, j in zip(prev_values, sliced_prev_values)) and diff >= threshold:
             return True
-        elif all(i > j for i, j in zip(prev_values, prev_values[1:])) and diff >= threshold:
+        elif all(i > j for i, j in zip(prev_values, sliced_prev_values)) and diff >= threshold:
             return True
         else:
             return False

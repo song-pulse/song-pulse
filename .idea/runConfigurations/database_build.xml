@@ -8,7 +8,7 @@
         <option name="entrypoint" value="" />
         <option name="imageTag" value="dikohl/postgres" />
         <option name="commandLineOptions" value="" />
-        <option name="sourceFilePath" value="database/Dockerfile" />
+        <option name="sourceFilePath" value="database.dockerfile" />
       </settings>
     </deployment>
     <method v="2" />
