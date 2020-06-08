@@ -14,10 +14,7 @@ services:
     restart: always
 
   web:
-    build:
-      context: .
-      dockerfile: backend.dockerfile
-    image: "song-pulse"
+    image: "dikohl/song-pulse"
     depends_on:
       - db
       - worker
@@ -27,10 +24,7 @@ services:
       - "8080:8080"
 
   worker:
-    build:
-      context: .
-      dockerfile: celery.dockerfile
-    image: 'song-pulse-worker'
+    image: 'dikohl/song-pulse-worker'
     depends_on:
       - db
       - queue
