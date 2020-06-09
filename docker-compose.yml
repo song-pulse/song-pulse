@@ -15,7 +15,7 @@ services:
 
   web:
     build:
-      context: .
+      context: ./backend
       dockerfile: backend.dockerfile
     image: "song-pulse"
     depends_on:
@@ -28,7 +28,7 @@ services:
 
   worker:
     build:
-      context: .
+      context: ./backend
       dockerfile: celery.dockerfile
     image: 'song-pulse-worker'
     depends_on:
