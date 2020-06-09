@@ -1,3 +1,5 @@
+from typing import List
+
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
 
@@ -15,6 +17,9 @@ class CRUDBaseline(CRUDBase[Baseline, BaselineCreate, BaselineUpdate]):
         db_session.commit()
         db_session.refresh(fresh_baseline)
         return fresh_baseline
+
+    def get_by_participant(self, db_session: Session, participant_id: int) -> List[Baseline]:
+        return db_session.query(self.model).filter(self.model.participant_id == participant_id).all()
 
 
 baseline = CRUDBaseline(Baseline)
