@@ -5,6 +5,7 @@ RUN pip install fastapi uvicorn psycopg2 sqlalchemy pydantic alembic numpy pytz 
 COPY app /app/app
 
 ENV PYTHONPATH=/app
+ENV PYTHONUNBUFFERED=0
 
 ADD requirements.txt .
 RUN pip install -r requirements.txt

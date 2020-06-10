@@ -90,7 +90,8 @@ async def get_values(part_id: int, rec_id: int, file_id: int, db: Session = Depe
 
 
 @router.post("/{part_id}/recordings/{rec_id}/files/{file_id}/values", response_model=Value)
-async def create_value(*, part_id: int, rec_id: int, file_id: int, value: ValueCreate, db: Session = Depends(deps.get_db)):
+async def create_value(*, part_id: int, rec_id: int, file_id: int, value: ValueCreate,
+                       db: Session = Depends(deps.get_db)):
     fresh_value = crud.value.create_with_file(db_session=db, obj_in=value, file_id=file_id)
     return fresh_value
 
@@ -105,7 +106,7 @@ async def get_runs(*, rec_id: int, db: Session = Depends(deps.get_db)):
 async def start_run(*, part_id: int, rec_id: int, run: RunCreate, db: Session = Depends(deps.get_db)):
     run.is_running = True
     fresh_run = crud.run.create_with_recoding(db_session=db, obj_in=run, recording_id=rec_id)
-    celery_app.send_task("app.worker.run", args=[part_id, rec_id, fresh_run.id])
+    celery_app.send_task("app.worker.run", args=[part_id, rec_id, fresh_run.id, -100, 0, 0, 0, 0, 0, 0])
     return fresh_run
 
 
@@ -179,6 +180,16 @@ def create_mobile_value(*, part_id: int, rec_id: int, tv: TimestampValues, db: S
 
         if value is not None:
             crud.value.create_with_file(db_session=db, obj_in=value, file_id=file.id)
-        # TODO call wrapper with the TimestampValues!
+
     current_run = crud.run.get_first_for_recording(db_session=db, recording_id=rec_id)
+    celery_app.send_task("app.worker.run", args=[part_id,
+                                                 rec_id,
+                                                 current_run.id,
+                                                 tv.timestamp,
+                                                 tv.eda,
+                                                 tv.ibi,
+                                                 tv.temp,
+                                                 tv.acc_x,
+                                                 tv.acc_y,
+                                                 tv.acc_z])
     return current_run
