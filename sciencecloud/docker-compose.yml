@@ -38,6 +38,7 @@ services:
     depends_on:
       - web
     environment:
-      - GATSBY_API_URL=http://130.60.24.99:8080/
+      - GATSBY_API_URL=http://localhost:8080/
     ports:
       - "8000:8000"
+    network_mode: "service:web"
