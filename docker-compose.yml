@@ -23,6 +23,8 @@ services:
       - worker
     environment:
       - DATABASE_URL=postgres://docker:docker@db:5432/docker
+      - SPOTIPY_CLIENT_ID=bcff380514c34d9c9e9c0f075368622f
+      - SPOTIPY_CLIENT_SECRET=06abee92ed8e4b8180f1de73e6244ef9
     ports:
       - "8080:8080"
 
