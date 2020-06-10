@@ -13,7 +13,7 @@ class LearningWrapper:
     def __init__(self):
         self.dbSession = next(deps.get_db())
         self.learning = SongPulseAgent()
-        self.cleaning = DataCleaning()
+        self.cleaning = DataCleaning(self.dbSession)
 
     @staticmethod
     def calculate_baseline(baseline: float, counter: int, current_value: float):
@@ -63,4 +63,7 @@ class LearningWrapper:
                                      obj_in=self.createBaselineUpdate(baseline, temp_baseline))
 
         tendency = self.cleaning.run(data, eda_baseline, ibi_baseline)
-        return self.learning.run_with_tendency(tendency, data.timestamp, data.runId, part_id)
+        return self.learning.run_with_tendency(self.dbSession, tendency, data.timestamp, data.runId, part_id)
+
+    def getDbSession(self):
+        return self.dbSession
