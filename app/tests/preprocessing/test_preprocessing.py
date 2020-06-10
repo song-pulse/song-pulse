@@ -1,8 +1,8 @@
-import unittest
+from unittest import TestCase
 from app.preprocessing.data_preprocess import DataCleaning
 
 
-class PreprocessingTest(unittest.TestCase):
+class PreprocessingTest(TestCase):
 
     def setUp(self):
         self.preprocess = DataCleaning()
@@ -10,7 +10,3 @@ class PreprocessingTest(unittest.TestCase):
     def test_detect_change(self):
         # TODO override settings either here or in setup?
         self.assertEqual(True, False)
-
-
-if __name__ == '__main__':
-    unittest.main()
