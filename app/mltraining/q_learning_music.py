@@ -23,6 +23,7 @@ class SongPulseAgent:
         self.actions = [0, 1, 2]  # 3 different actions: lower music, stay same, upper music
         self.state = self.states[2]  # init state here but gets overwritten in the tendency fun
         self.timestamp = 23456789234  # bigint, assigned below
+        # TODO: comment here things out that are not needed
         self.run_id = 3
         self.participant_id = 1
         self.feedback = 0
@@ -33,6 +34,7 @@ class SongPulseAgent:
         self.n_states = len(self.states)
         self.n_actions = len(self.actions)
         self.Q_table = np.zeros((self.n_states, self.n_actions), dtype=int, order='C')
+        print('Q table initial', self.Q_table)
 
     def get_adaptive_epsilon(self, e):
         # return max(min_epsilon, min(1, 1.0 - np.math.log10((episode + 1) / number_of_states)))
@@ -76,13 +78,23 @@ class SongPulseAgent:
         db_session = next(deps.get_db())
         tmp = crud.run.get(db_session=db_session, id=self.run_id)
         if len(tmp.results) == 0:
+            print('results from run empty -> verdict 1')
             return 1
         verdict = tmp.results[-1].verdict  # this is a number 0,1, or 2 which corresponds to the state
-        qtable = crud.qtable.create_with_participant(db_session=db_session, obj_in=QTableCreate(data='testdata'), participant_id=1)
+        # save Qtable to DB
+        self.save_qtable(db_session, data='testdata')
+        # qtable = crud.qtable.create_with_participant(db_session=db_session, obj_in=QTableCreate(data='testdata'), participant_id=1)
+        # TODO: here change testdata to our qlearning table and participant_id to self.participant_id
+        # TODO: put this in save_qtable function below and also make a get_qtable to get the q_table from the last round
         print('verdict', verdict)
         return verdict
 
-    def save_qtable(self):
+    def save_qtable(self, db_session, data):
+        qtable = crud.qtable.create_with_participant(db_session=db_session, obj_in=QTableCreate(data=data),
+                                                     participant_id=self.participant_id)
+        return
+
+
         # TODO: make a call to the DB and save the current Q table after every adaption
         # TODO: discuss with dimitri, where in the db this self.Q_table should go
         return
@@ -90,9 +102,11 @@ class SongPulseAgent:
     def choose_action(self, epsilon=EPSILON):
         if np.random.random() < epsilon:
             # randomly sample explore_rate percent of the time
+            print('take random action')
             self.action = np.random.choice(self.actions)
         else:
             # take optimal action
+            print('take action from qtable')
             self.action = np.argmax(self.Q_table[self.state])
             # print(' HALLO qtable[self.state]', self.Q_table[self.state])
             # print('action', self.action)
@@ -124,10 +138,12 @@ class SongPulseAgent:
             self.action = self.choose_action(self.state)
             # TODO: here next state should be computed differently
             self.new_state = self.next_state_func()
+            print('Train: old state is', self.state)
+            print('Train: new state is', self.new_state)
             self.reward = self.get_reward()
-            # print('reward is', self.reward)
+            print('reward is', self.reward)
             self.update_q_table()
-            # print('qtable after update', self.Q_table)
+            print('qtable after update', self.Q_table)
             self.state = self.new_state
             # print('new state', self.state)
         # print('training finished')
@@ -145,10 +161,8 @@ class SongPulseAgent:
             print('best action for state', self.state, 'is', self.action)
             # TODO DIMITRI: adapt_music(self.action, self.state) --> this function forwarded to server with music
             # TODO Anja: here give a songid and save the already played songs
-            # TODO: verdict(rating: in db), timestamp (comes directly from datacleaning), action, action: int
-            # TODO: mapping from int to string --> 0-> 'low' etc.
-            # TODO: runid
-            # after a certain time a new state comes in
+            # TODO: verdict(rating: in db), timestamp (comes directly from datacleaning), action: int, run_id
+            # after a certain time a new state comes in -> new call from the learning_wrapper
             i += 1
         return self.action
         print('run finished for all adaptions')
@@ -159,14 +173,16 @@ class SongPulseAgent:
         self.timestamp = timestamp
         self.run_id = run_id
         self.participant_id = participant_id
-        print('current state', self.state, 'self.run_id', self.run_id, 'self.timestamp', self.timestamp)
-        print('self.getfeedback', self.get_feedback())
+        print('current state', self.state, 'run_id', self.run_id, 'timestamp', self.timestamp,
+              'participant_id', self.participant_id)
+        print('getfeedback', self.get_feedback())
         self.train()
         return self.run(11)
 
 
 if __name__ == "__main__":
     agent = SongPulseAgent()
+    # TODO: comment out things here below to see if it is needed
     # agent.train()  # this fills the Q table in order for it to get an optimal policy
     agent.run_with_tendency(tendency=1, timestamp=1233456789, run_id=3)  # tendency comes from the learning wrapper
     # TODO: here tendency, timestamp and run_id come from data preprocess and stream
