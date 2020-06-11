@@ -10,4 +10,5 @@ pydantic
 alembic
 python-multipart
 future
+spotipy
 

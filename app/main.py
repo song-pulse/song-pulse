@@ -6,7 +6,7 @@ from app.api.api_v1.api import api_router
 app = FastAPI()
 
 origins = [
-    "https://stream-pulse.herokuapp.com",
+    "http://130.60.24.99:8000",
     "http://localhost:8000",
 ]
 

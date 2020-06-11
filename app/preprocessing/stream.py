@@ -21,7 +21,7 @@ class Stream:
         acc_interval1 = None
         acc_interval2 = None
 
-        db_session = next(deps.get_db())
+        db_session = learning.getDbSession()
         # Get the files from the recording.
         files = crud.file.get_multi_for_recording(db_session, recording_id=rec_id)
 
@@ -52,7 +52,7 @@ class Stream:
                                                                       bvp_data, eda_data,
                                                                       ibi_data, run_id,
                                                                       temp_data)
-            song_id = learning.run(data_for_time_object, value.timestamp, run_id, part_id)
+            song_id = learning.run(data_for_time_object, part_id)
             result = ResultCreate(timestamp=value.timestamp, song_id=song_id, verdict=-1,
                                   input=str(data_for_time_object))
             crud.result.create_with_run(db_session=db_session, obj_in=result, run_id=run_id)

@@ -10,7 +10,6 @@ class DataForTime:
     #   The IBI value of this specific time
     #   The ACC values of 2 intervals (1 interval = 3 seconds?) before the time and of this specific time.
     #   The Temp values of this specific time and of 30 seconds and 60 seconds after.
-    #   The BVP values of this specific time
 
     def __init__(self):
         self.timestamp = 0
@@ -18,9 +17,8 @@ class DataForTime:
 
         self.edaValue = 0
         self.ibiValue = 0
-        self.accValues = []
         self.tempValue = 0
-        self.bvpValue = 0
+        self.accValues = []
 
     def __str__(self):
         return str(self.timestamp) + " " + str(self.edaValue)  # TODO extend

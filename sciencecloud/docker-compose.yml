@@ -6,8 +6,8 @@ services:
     environment:
       POSTGRES_PASSWORD: docker
       POSTGRES_USER: docker
-    ports:
-      - "8001:5432"
+    expose:
+      - "5432"
 
   queue:
     image: rabbitmq:3
@@ -20,6 +20,8 @@ services:
       - worker
     environment:
       - DATABASE_URL=postgres://docker:docker@db:5432/docker
+      - SPOTIPY_CLIENT_ID=bcff380514c34d9c9e9c0f075368622f
+      - SPOTIPY_CLIENT_SECRET=06abee92ed8e4b8180f1de73e6244ef9
     ports:
       - "8080:8080"
 
@@ -30,3 +32,13 @@ services:
       - queue
     environment:
       - DATABASE_URL=postgres://docker:docker@db:5432/docker
+
+  frontend:
+    image: 'dikohl/song-pulse-frontend'
+    depends_on:
+      - web
+    environment:
+      - GATSBY_API_URL=http://localhost:8080/
+    ports:
+      - "8000:8000"
+    network_mode: "service:web"
