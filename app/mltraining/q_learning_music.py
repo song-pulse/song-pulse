@@ -72,9 +72,26 @@ class SongPulseAgent:
         return self.new_state
 
     def next_state_with_feedback(self, db_session):
+        # TODO: combine these two and use this method instead of next_state_func
+        """
+        feedback is either 0,1 or 2 (0: bad (too relaxing) , 1:bad (too motivating), 2:good)
+        :param db_session:
+        :return: new state according to the next state func and user feedback in the app
+        """
         self.feedback = self.get_feedback(db_session)  # feedback
         self.new_state = self.next_state_func()  # next state from
-        # TODO: combine these two and use this method instead of next_state_func
+        if self.feedback == 0:
+            if self.state == 0:
+                self.new_state = 0
+            else:
+                self.new_state = self.state - 1
+        if self.feedback == 1:
+            if self.state == 2:
+                self.new_state = 2
+            else:
+                self.new_state = self.state + 1
+        if self.feedback == 2:
+            self.new_state = self.next_state_func()
 
     def get_feedback(self, db_session):
         tmp = crud.run.get(db_session=db_session, id=self.run_id)
