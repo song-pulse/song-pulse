@@ -100,12 +100,13 @@ class SongPulseAgent:
             return 1
         verdict = tmp.results[-1].verdict  # this is a number 0,1, or 2 which corresponds to the state
         qtable = self.save_qtable(db_session, data='testdata')
-        # TODO: here change testdata to our qlearning table
+        # TODO: qtable = self.save_qtable(db_session, data=self.Q_table), does not take Q_table
         # TODO: make a get_qtable to get the q_table from the last round
         print('verdict', verdict)
         return verdict
 
     def save_qtable(self, db_session, data):
+        # TODO: make a call to the DB and save the current Q table after every adaption
         """
         saves qtable to db
         :param db_session: current db session
@@ -115,10 +116,6 @@ class SongPulseAgent:
         qtable = crud.qtable.create_with_participant(db_session=db_session, obj_in=QTableCreate(data=data),
                                                      participant_id=self.participant_id)
         return qtable
-
-        # TODO: make a call to the DB and save the current Q table after every adaption
-        # TODO: discuss with dimitri, where in the db this self.Q_table should go
-        return
 
     def choose_action(self, epsilon=EPSILON):
         if np.random.random() < epsilon:
@@ -142,7 +139,6 @@ class SongPulseAgent:
         elif (self.state == 2 & self.new_state == 0) | (self.state == 0 & self.new_state == 2) | (
                 self.state == self.new_state & self.state != 1):
             self.reward = 2
-            # TODO ensure that self.state is the old state -> otw give oldstate as an argument
             # case adaption in right direction but not state 1 or state which stays the same
         else:
             # adaption in wrong direction
