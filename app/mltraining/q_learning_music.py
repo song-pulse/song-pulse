@@ -21,6 +21,7 @@ class SongPulseAgent:
         self.run_id = 3
         self.participant_id = 1
         self.feedback = 0
+        self.playlist_id = 0
         self.reward = 1  # initially reward is set to 1
         self.new_state = self.state  # initially new_state = state
         self.action = self.actions[1]  # default action is doing nothing (action 1)
@@ -127,6 +128,35 @@ class SongPulseAgent:
             print('take action from qtable')
             self.action = np.argmax(self.Q_table[self.state])
         return self.action
+
+    def action_state_to_song(self):
+        """
+        TODO: another function that assigns a spotify link to each playlist_id
+        this function takes an action and state(the optimal action for the given state computed and chooses a song
+        randomly from one of the 3 spotify playlists)
+        :return: song from spotify either the song link or directly play the song here
+        """
+        # TODO: spotify integration here
+        if self.action == 0 & self.state == 0:
+            self.playlist_id = 0
+        if self.action == 1 & self.state == 0:
+            self.playlist_id = 0
+        if self.action == 2 & self.state == 0:
+            self.playlist_id = 1
+        if self.action == 0 & self.state == 1:
+            self.playlist_id = 0
+        if self.action == 1 & self.state == 1:
+            self.playlist_id = 1
+        if self.action == 2 & self.state == 1:
+            self.playlist_id = 2
+        if self.action == 0 & self.state == 2:
+            self.playlist_id = 0
+        if self.action == 1 & self.state == 2:
+            self.playlist_id = 2
+        if self.action== 2 & self.state == 2:
+            self.playlist_id = 2
+        print('playlist_id', self.playlist_id)
+        return self.playlist_id
 
     def get_reward(self):
         """
