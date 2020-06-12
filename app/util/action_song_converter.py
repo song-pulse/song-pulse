@@ -1,30 +1,18 @@
-#  TODO: give a valid songid from our db
+from app import crud
 
 
-def action_state_to_song(self):
-    """
-    TODO: put this in another file in util/action_song_converter.py
-    this function takes an action and state(the optimal action for the given state computed and chooses a song
-    randomly from one of the 3 spotify playlists)
-    :return: song from spotify either the song link or directly play the song here
-    """
-    if self.action == 0 & self.state == 0:
-        self.playlist_id = 0
-    if self.action == 1 & self.state == 0:
-        self.playlist_id = 0
-    if self.action == 2 & self.state == 0:
-        self.playlist_id = 1
-    if self.action == 0 & self.state == 1:
-        self.playlist_id = 0
-    if self.action == 1 & self.state == 1:
-        self.playlist_id = 1
-    if self.action == 2 & self.state == 1:
-        self.playlist_id = 2
-    if self.action == 0 & self.state == 2:
-        self.playlist_id = 0
-    if self.action == 1 & self.state == 2:
-        self.playlist_id = 2
-    if self.action == 2 & self.state == 2:
-        self.playlist_id = 2
-    print('playlist_id', self.playlist_id)
-    return self.playlist_id
+def get_song_from_spotify(db_session, action, participant_id):
+    pl_type = ''
+    if action == 0:
+        pl_type = 'Motivate'
+        # choose  motivating playlist
+    elif action == 1:
+        # TODO: here should be a third playlisttype added -> for example normal
+        pl_type = 'Balance'
+        # choose  normal playlist
+    elif action == 2:
+        pl_type = 'Relax'
+        # choose  relaxing playlist
+    playlist = crud.playlist.get_by_participant_and_type(db_session=db_session, participant_id=participant_id,
+                                                         plist_type=pl_type)
+    return playlist.songs[0].id

@@ -182,20 +182,18 @@ class SongPulseAgent:
             print('qtable after update', self.Q_table)
             self.state = self.new_state
 
-    def run(self, number_adaptions):
+    def run(self, number_adaptions, db_session):
         """
         take best possible action for a certain state by taking the q matrix computed from training phase
         :param number_adaptions: says for how long, i.e. how many intervals we look at
         for example if we look for 900s and every 30s we want to change the music we have 900/30= 30 num_adaptions
         :return: action to take (go for a motivating, a relaxing or normal song) either 0,1,2
         """
-        # TODO: request to server with music like adapt_music(action) where the music gets adapted accordingly
         i = 0
         while i <= number_adaptions:
             best_action_index = self.Q_table[self.state].argmax()  # take the best action for the given current state
             self.action = self.actions[best_action_index]  # take best action
             print('best action for state', self.state, 'is', self.action)
-            # TODO Anja: here give a songid and save the already played songs, call the action_song_converter
             i += 1
         return self.action
         print('run finished for all adaptions')
@@ -216,7 +214,7 @@ class SongPulseAgent:
         print('getFeedback', self.get_feedback(db_session))
         self.train()
         self.save_qtable(db_session)
-        return self.run(num_adaptions)
+        return self.run(num_adaptions, db_session)
 
 
 if __name__ == "__main__":
