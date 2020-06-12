@@ -63,6 +63,8 @@ class LearningWrapper:
                                      obj_in=self.createBaselineUpdate(baseline, temp_baseline))
 
         tendency = self.cleaning.run(data, eda_baseline, ibi_baseline)
+        action = self.learning.run_with_tendency(self.dbSession, tendency, data.timestamp, data.runId, part_id)
+        # TODO: return what comes from action_song_converter.py
         return self.learning.run_with_tendency(self.dbSession, tendency, data.timestamp, data.runId, part_id)
 
     def getDbSession(self):

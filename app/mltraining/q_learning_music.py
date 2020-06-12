@@ -1,6 +1,6 @@
 import numpy as np
 from app import crud
-from app.schemas.qtable import QTableCreate
+from app.schemas.qtable import QTableCreate, QTableUpdate
 
 EPSILON = 0.5
 ALPHA = 0.5
@@ -28,7 +28,6 @@ class SongPulseAgent:
         self.n_states = len(self.states)
         self.n_actions = len(self.actions)
         self.Q_table = np.zeros((self.n_states, self.n_actions), dtype=int, order='C')
-        print('Q table initial', self.Q_table)
 
     def get_adaptive_epsilon(self, e):
         """
@@ -52,6 +51,7 @@ class SongPulseAgent:
         """
         self.Q_table[self.state, self.action] += self.alpha * (
                 self.reward + self.gamma * np.max(self.Q_table[self.new_state]) - self.Q_table[self.state][self.action])
+        self.Q_table = self.Q_table.astype(int)  # convert entries of qtable to int
         return
 
     def next_state_func(self):
@@ -100,63 +100,55 @@ class SongPulseAgent:
             print('results from run empty -> verdict 1')
             return 1
         verdict = tmp.results[-1].verdict  # this is a number 0,1, or 2 which corresponds to the state
-        qtable = self.save_qtable(db_session, data='testdata')
-        # TODO: qtable = self.save_qtable(db_session, data=self.Q_table), does not take Q_table
-        # TODO: make a get_qtable to get the q_table from the last round
         print('verdict', verdict)
         return verdict
 
-    def save_qtable(self, db_session, data):
-        # TODO: make a call to the DB and save the current Q table after every adaption
+    def string_to_array(self, data:str):
+        """
+        conversion of string qtable which comes from db as a string and gets converted to a 2d array
+        :param data: qtable that comes from db is in stringform
+        :return: 2dimensional array (Qtable)
+        """
+
+        my_array = np.array([float(letter) for letter in data])
+        final_array = my_array.reshape(3, 3)
+        final_array.astype(int)
+        return final_array
+
+    def array_to_string(self, data):
+        """
+        conversion of 2d array (Q_table) to a string in order to save it in the db
+        :param data: qtable 2d array and has to be converted to string form
+        :return: qtable in a stringformat
+        """
+        tmp = data.flatten()
+        my_string = ''.join(str(e) for e in tmp)
+        return my_string
+
+    def save_qtable(self, db_session):
         """
         saves qtable to db
         :param db_session: current db session
         :param data: qtable (saved as matrix or string)
         :return: qtable which is saved in db
         """
-        qtable = crud.qtable.create_with_participant(db_session=db_session, obj_in=QTableCreate(data=data),
-                                                     participant_id=self.participant_id)
+        data = self.array_to_string(self.Q_table)
+        qtable = crud.qtable.get_by_participant(db_session=db_session, participant_id=self.participant_id)
+        if qtable is None:
+            qtable = crud.qtable.create_with_participant(db_session=db_session, obj_in=QTableCreate(data=data),
+                                                         participant_id=self.participant_id)
+        else:
+            qtable = crud.qtable.update(db_session=db_session, db_obj=qtable, obj_in=QTableUpdate(data=data))
         return qtable
 
     def choose_action(self, epsilon=EPSILON):
         if np.random.random() < epsilon:
-            # randomly sample explore_rate percent of the time
             print('take random action')
-            self.action = np.random.choice(self.actions)
+            self.action = np.random.choice(self.actions)  # randomly sample explore_rate percent of the time
         else:
-            # take optimal action
             print('take action from qtable')
-            self.action = np.argmax(self.Q_table[self.state])
+            self.action = np.argmax(self.Q_table[self.state])  # take optimal action
         return self.action
-
-    def action_state_to_song(self):
-        """
-        TODO: another function that assigns a spotify link to each playlist_id
-        this function takes an action and state(the optimal action for the given state computed and chooses a song
-        randomly from one of the 3 spotify playlists)
-        :return: song from spotify either the song link or directly play the song here
-        """
-        # TODO: spotify integration here
-        if self.action == 0 & self.state == 0:
-            self.playlist_id = 0
-        if self.action == 1 & self.state == 0:
-            self.playlist_id = 0
-        if self.action == 2 & self.state == 0:
-            self.playlist_id = 1
-        if self.action == 0 & self.state == 1:
-            self.playlist_id = 0
-        if self.action == 1 & self.state == 1:
-            self.playlist_id = 1
-        if self.action == 2 & self.state == 1:
-            self.playlist_id = 2
-        if self.action == 0 & self.state == 2:
-            self.playlist_id = 0
-        if self.action == 1 & self.state == 2:
-            self.playlist_id = 2
-        if self.action== 2 & self.state == 2:
-            self.playlist_id = 2
-        print('playlist_id', self.playlist_id)
-        return self.playlist_id
 
     def get_reward(self):
         """
@@ -189,8 +181,6 @@ class SongPulseAgent:
             self.update_q_table()
             print('qtable after update', self.Q_table)
             self.state = self.new_state
-            # print('new state', self.state)
-        # print('training finished')
 
     def run(self, number_adaptions):
         """
@@ -205,10 +195,7 @@ class SongPulseAgent:
             best_action_index = self.Q_table[self.state].argmax()  # take the best action for the given current state
             self.action = self.actions[best_action_index]  # take best action
             print('best action for state', self.state, 'is', self.action)
-            # TODO DIMITRI: adapt_music(self.action, self.state) --> this function forwarded to server with music
-            # TODO Anja: here give a songid and save the already played songs
-            # TODO: verdict(rating: in db), timestamp (comes directly from datacleaning), action: int, run_id
-            # after a certain time a new state comes in -> new call from the learning_wrapper
+            # TODO Anja: here give a songid and save the already played songs, call the action_song_converter
             i += 1
         return self.action
         print('run finished for all adaptions')
@@ -219,10 +206,16 @@ class SongPulseAgent:
         self.timestamp = timestamp
         self.run_id = run_id
         self.participant_id = participant_id
+        qtable = crud.qtable.get_by_participant(db_session=db_session, participant_id=participant_id)
+        if qtable is None:
+            self.Q_table = np.zeros((self.n_states, self.n_actions), dtype=int, order='C')
+        else:
+            self.Q_table = self.string_to_array(qtable.data)  # convert the Q_table we get from db back to a 2d array
         print('current state', self.state, 'run_id', self.run_id, 'timestamp', self.timestamp,
               'participant_id', self.participant_id)
         print('getFeedback', self.get_feedback(db_session))
         self.train()
+        self.save_qtable(db_session)
         return self.run(num_adaptions)
 
 
