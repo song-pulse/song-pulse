@@ -6,6 +6,7 @@ from app.preprocessing.data_for_time import DataForTime
 from app.preprocessing.data_preprocess import DataCleaning
 from app.models.baseline import Baseline
 from app.schemas.baseline import BaselineUpdate, BaselineCreate
+from app.util.action_song_converter import get_song_from_spotify
 
 
 class LearningWrapper:
@@ -27,13 +28,14 @@ class LearningWrapper:
         return BaselineUpdate(participant_id=baseline.participant_id,
                               sensor_id=baseline.sensor_id,
                               baseline=new_baseline,
-                              counter=baseline.counter+1
+                              counter=baseline.counter + 1
                               )
 
     def createNewBaselines(self, part_id: int):
         sensors = crud.sensor.get_multi(db_session=self.dbSession)
         for sensor in sensors:
-            crud.baseline.create(db_session=self.dbSession, obj_in=BaselineCreate(sensor_id=sensor.id, participant_id=part_id))
+            crud.baseline.create(db_session=self.dbSession,
+                                 obj_in=BaselineCreate(sensor_id=sensor.id, participant_id=part_id))
 
     def run(self, data: DataForTime, part_id: int):
         eda_baseline = 0.0
@@ -63,7 +65,8 @@ class LearningWrapper:
                                      obj_in=self.createBaselineUpdate(baseline, temp_baseline))
 
         tendency = self.cleaning.run(data, eda_baseline, ibi_baseline)
-        return self.learning.run_with_tendency(self.dbSession, tendency, data.timestamp, data.runId, part_id)
+        action = self.learning.run_with_tendency(self.dbSession, tendency, data.timestamp, data.runId, part_id)
+        return get_song_from_spotify(db_session=self.dbSession, action=action, participant_id=part_id)
 
-    def getDbSession(self):
+    def get_db_session(self):
         return self.dbSession

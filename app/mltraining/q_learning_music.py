@@ -1,6 +1,6 @@
 import numpy as np
 from app import crud
-from app.schemas.qtable import QTableCreate
+from app.schemas.qtable import QTableCreate, QTableUpdate
 
 EPSILON = 0.5
 ALPHA = 0.5
@@ -21,13 +21,13 @@ class SongPulseAgent:
         self.run_id = 3
         self.participant_id = 1
         self.feedback = 0
+        self.playlist_id = 0
         self.reward = 1  # initially reward is set to 1
         self.new_state = self.state  # initially new_state = state
         self.action = self.actions[1]  # default action is doing nothing (action 1)
         self.n_states = len(self.states)
         self.n_actions = len(self.actions)
         self.Q_table = np.zeros((self.n_states, self.n_actions), dtype=int, order='C')
-        print('Q table initial', self.Q_table)
 
     def get_adaptive_epsilon(self, e):
         """
@@ -51,6 +51,7 @@ class SongPulseAgent:
         """
         self.Q_table[self.state, self.action] += self.alpha * (
                 self.reward + self.gamma * np.max(self.Q_table[self.new_state]) - self.Q_table[self.state][self.action])
+        self.Q_table = self.Q_table.astype(int)  # convert entries of qtable to int
         return
 
     def next_state_func(self):
@@ -72,9 +73,26 @@ class SongPulseAgent:
         return self.new_state
 
     def next_state_with_feedback(self, db_session):
+        # TODO: combine these two and use this method instead of next_state_func
+        """
+        feedback is either 0,1 or 2 (0: bad (too relaxing) , 1:bad (too motivating), 2:good)
+        :param db_session:
+        :return: new state according to the next state func and user feedback in the app
+        """
         self.feedback = self.get_feedback(db_session)  # feedback
         self.new_state = self.next_state_func()  # next state from
-        # TODO: combine these two and use this method instead of next_state_func
+        if self.feedback == 0:
+            if self.state == 0:
+                self.new_state = 0
+            else:
+                self.new_state = self.state - 1
+        if self.feedback == 1:
+            if self.state == 2:
+                self.new_state = 2
+            else:
+                self.new_state = self.state + 1
+        if self.feedback == 2:
+            self.new_state = self.next_state_func()
 
     def get_feedback(self, db_session):
         tmp = crud.run.get(db_session=db_session, id=self.run_id)
@@ -82,36 +100,54 @@ class SongPulseAgent:
             print('results from run empty -> verdict 1')
             return 1
         verdict = tmp.results[-1].verdict  # this is a number 0,1, or 2 which corresponds to the state
-        qtable = self.save_qtable(db_session, data='testdata')
-        # TODO: here change testdata to our qlearning table
-        # TODO: make a get_qtable to get the q_table from the last round
         print('verdict', verdict)
         return verdict
 
-    def save_qtable(self, db_session, data):
+    def string_to_array(self, data:str):
+        """
+        conversion of string qtable which comes from db as a string and gets converted to a 2d array
+        :param data: qtable that comes from db is in stringform
+        :return: 2dimensional array (Qtable)
+        """
+
+        my_array = np.array([float(letter) for letter in data])
+        final_array = my_array.reshape(3, 3)
+        final_array.astype(int)
+        return final_array
+
+    def array_to_string(self, data):
+        """
+        conversion of 2d array (Q_table) to a string in order to save it in the db
+        :param data: qtable 2d array and has to be converted to string form
+        :return: qtable in a stringformat
+        """
+        tmp = data.flatten()
+        my_string = ''.join(str(e) for e in tmp)
+        return my_string
+
+    def save_qtable(self, db_session):
         """
         saves qtable to db
         :param db_session: current db session
         :param data: qtable (saved as matrix or string)
         :return: qtable which is saved in db
         """
-        qtable = crud.qtable.create_with_participant(db_session=db_session, obj_in=QTableCreate(data=data),
-                                                     participant_id=self.participant_id)
+        data = self.array_to_string(self.Q_table)
+        qtable = crud.qtable.get_by_participant(db_session=db_session, participant_id=self.participant_id)
+        if qtable is None:
+            qtable = crud.qtable.create_with_participant(db_session=db_session, obj_in=QTableCreate(data=data),
+                                                         participant_id=self.participant_id)
+        else:
+            qtable = crud.qtable.update(db_session=db_session, db_obj=qtable, obj_in=QTableUpdate(data=data))
         return qtable
-
-        # TODO: make a call to the DB and save the current Q table after every adaption
-        # TODO: discuss with dimitri, where in the db this self.Q_table should go
-        return
 
     def choose_action(self, epsilon=EPSILON):
         if np.random.random() < epsilon:
-            # randomly sample explore_rate percent of the time
             print('take random action')
-            self.action = np.random.choice(self.actions)
+            self.action = np.random.choice(self.actions)  # randomly sample explore_rate percent of the time
         else:
-            # take optimal action
             print('take action from qtable')
-            self.action = np.argmax(self.Q_table[self.state])
+            self.action = np.argmax(self.Q_table[self.state])  # take optimal action
         return self.action
 
     def get_reward(self):
@@ -125,7 +161,6 @@ class SongPulseAgent:
         elif (self.state == 2 & self.new_state == 0) | (self.state == 0 & self.new_state == 2) | (
                 self.state == self.new_state & self.state != 1):
             self.reward = 2
-            # TODO ensure that self.state is the old state -> otw give oldstate as an argument
             # case adaption in right direction but not state 1 or state which stays the same
         else:
             # adaption in wrong direction
@@ -146,26 +181,19 @@ class SongPulseAgent:
             self.update_q_table()
             print('qtable after update', self.Q_table)
             self.state = self.new_state
-            # print('new state', self.state)
-        # print('training finished')
 
-    def run(self, number_adaptions):
+    def run(self, number_adaptions, db_session):
         """
         take best possible action for a certain state by taking the q matrix computed from training phase
         :param number_adaptions: says for how long, i.e. how many intervals we look at
         for example if we look for 900s and every 30s we want to change the music we have 900/30= 30 num_adaptions
         :return: action to take (go for a motivating, a relaxing or normal song) either 0,1,2
         """
-        # TODO: request to server with music like adapt_music(action) where the music gets adapted accordingly
         i = 0
         while i <= number_adaptions:
             best_action_index = self.Q_table[self.state].argmax()  # take the best action for the given current state
             self.action = self.actions[best_action_index]  # take best action
             print('best action for state', self.state, 'is', self.action)
-            # TODO DIMITRI: adapt_music(self.action, self.state) --> this function forwarded to server with music
-            # TODO Anja: here give a songid and save the already played songs
-            # TODO: verdict(rating: in db), timestamp (comes directly from datacleaning), action: int, run_id
-            # after a certain time a new state comes in -> new call from the learning_wrapper
             i += 1
         return self.action
         print('run finished for all adaptions')
@@ -176,11 +204,17 @@ class SongPulseAgent:
         self.timestamp = timestamp
         self.run_id = run_id
         self.participant_id = participant_id
+        qtable = crud.qtable.get_by_participant(db_session=db_session, participant_id=participant_id)
+        if qtable is None:
+            self.Q_table = np.zeros((self.n_states, self.n_actions), dtype=int, order='C')
+        else:
+            self.Q_table = self.string_to_array(qtable.data)  # convert the Q_table we get from db back to a 2d array
         print('current state', self.state, 'run_id', self.run_id, 'timestamp', self.timestamp,
               'participant_id', self.participant_id)
         print('getFeedback', self.get_feedback(db_session))
         self.train()
-        return self.run(num_adaptions)
+        self.save_qtable(db_session)
+        return self.run(num_adaptions, db_session)
 
 
 if __name__ == "__main__":
