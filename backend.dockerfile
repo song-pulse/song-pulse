@@ -9,4 +9,6 @@ COPY alembic.ini /app
 ADD requirements.txt .
 RUN pip install -r requirements.txt
 
+ENV PYTHONUNBUFFERED=0
+
 CMD bash -c "alembic upgrade head && python app/initial_data.py && uvicorn app.main:app --host=0.0.0.0 --port=${PORT:-8080}"
