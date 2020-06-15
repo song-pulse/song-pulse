@@ -11,7 +11,8 @@ jobs:
 
     name: Test master branch
     runs-on: ubuntu-18.04
-
+    env:
+      DATABASE_URL: postgres://test:test@test:5432
     steps:
       - uses: actions/checkout@v2
       - name: Setup Python environment
