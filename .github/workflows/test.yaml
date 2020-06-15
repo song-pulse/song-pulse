@@ -30,12 +30,6 @@ jobs:
           # Maps tcp port 5432 on service container to the host
           - 5432:5432
 
-  artifact:
-
-    name: Test master branch
-    runs-on: ubuntu-18.04
-    env:
-      DATABASE_URL: postgres://postgres:postgres@localhost:5432/postgres
     steps:
       - uses: actions/checkout@v2
       - name: Setup Python environment
@@ -44,5 +38,9 @@ jobs:
           python-version: '3.7'
       - name: pip install
         run: pip install -r requirements.txt
+      - name: create database structure
+        run: alembic upgrade head
       - name: Run tests
+        env:
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/postgres
         run: python -m unittest discover
