@@ -14,5 +14,11 @@ jobs:
         run: docker-compose build db web
       - name: Start the stack
         run: docker-compose up --no-deps -d db web
+      - name: Sleep
+        uses: jakejarvis/wait-action@master
+        with:
+          time: '60s'
+      - name: Check running containers
+        run: docker ps -a
       - name: Run tests
         run: docker exec -i song-pulse_web_1 python -m unittest discover
