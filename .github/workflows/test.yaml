@@ -15,4 +15,4 @@ jobs:
       - name: Start the stack
         run: docker-compose up --no-deps -d db web
       - name: Run tests
-        run: docker run --network container:song-pulse_web_1 python -m unittest discover
+        run: docker exec -it song-pulse_web_1 python -m unittest discover
