@@ -6,44 +6,13 @@ on:
       - 'master'
 
 jobs:
-
-  container-job:
-    # Containers must run in Linux based operating systems
+  test:
     runs-on: ubuntu-latest
-
-    # Service containers to run with `container-job`
-    services:
-      # Label used to access the service container
-      postgres:
-        # Docker Hub image
-        image: postgres
-        # Provide the password for postgres
-        env:
-          POSTGRES_PASSWORD: postgres
-        # Set health checks to wait until postgres has started
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          # Maps tcp port 5432 on service container to the host
-          - 5432:5432
-
     steps:
-      - name: checkout code
-        uses: actions/checkout@v2
-      - name: Setup Python environment
-        uses: actions/setup-python@v2
-        with:
-          python-version: '3.7'
-      - name: pip install
-        run: pip install -r requirements.txt
-      - name: create database structure
-        run: alembic upgrade head && python app/initial_data.py
-        env:
-          DATABASE_URL: postgres://postgres:postgres@localhost:5432/postgres
-      - name: Run tests
-        run: python -m unittest discover
-        env:
-          DATABASE_URL: postgres://postgres:postgres@localhost:5432/postgres
+      - uses: actions/checkout@v2
+      - name: Build the stack
+        run: docker-compose build db web
+      - name:
+        run: docker-compose up --no-deps -d db web
+      - name: Test
+        run: docker run --network container:web python -m unittest discover
