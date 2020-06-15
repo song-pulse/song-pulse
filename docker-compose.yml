@@ -8,11 +8,6 @@ services:
       POSTGRES_USER: docker
     ports:
       - "8001:5432"
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U docker"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
 
   queue:
     image: rabbitmq:3
@@ -24,9 +19,8 @@ services:
       dockerfile: backend.dockerfile
     image: "song-pulse"
     depends_on:
-      db:
-        condition: service_healthy
-      worker
+      - db
+      - worker
     environment:
       - DATABASE_URL=postgres://docker:docker@db:5432/docker
       - SPOTIPY_CLIENT_ID=bcff380514c34d9c9e9c0f075368622f
@@ -40,8 +34,7 @@ services:
       dockerfile: celery.dockerfile
     image: 'song-pulse-worker'
     depends_on:
-      db:
-        condition: service_healthy
-      queue
+      - db
+      - queue
     environment:
       - DATABASE_URL=postgres://docker:docker@db:5432/docker
