@@ -12,7 +12,7 @@ jobs:
       - uses: actions/checkout@v2
       - name: Build the stack
         run: docker-compose build db web
-      - name:
+      - name: Start the stack
         run: docker-compose up --no-deps -d db web
-      - name: Test
-        run: docker run --network container:web python -m unittest discover
+      - name: Run tests
+        run: docker run --network container:song-pulse_web_1 python -m unittest discover
