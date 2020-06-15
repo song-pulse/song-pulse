@@ -1,0 +1,22 @@
+name: Master - Testing
+
+on:
+  push:
+    branches:
+      - 'master'
+
+jobs:
+
+  artifact:
+
+    name: Test master branch
+    runs-on: ubuntu-18.04
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup Python environment
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.7'
+      - name: Run tests
+        run: python -m unittest discover
