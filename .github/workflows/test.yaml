@@ -40,7 +40,7 @@ jobs:
       - name: pip install
         run: pip install -r requirements.txt
       - name: create database structure
-        run: alembic upgrade head
+        run: alembic upgrade head && python app/initial_data.py
         env:
           DATABASE_URL: postgres://postgres:postgres@localhost:5432/postgres
       - name: Run tests
