@@ -21,4 +21,4 @@ jobs:
       - name: Check running containers
         run: docker ps -a
       - name: Run tests
-        run: docker exec -i song-pulse_web_1 python -m unittest discover
+        run: docker exec -i song-pulse_web_1 start_tests.sh

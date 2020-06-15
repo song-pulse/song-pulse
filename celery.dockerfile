@@ -1,6 +1,6 @@
 FROM python:3.7
 
-RUN pip install fastapi uvicorn psycopg2 sqlalchemy pydantic alembic numpy pytz pandas python-multipart celery future
+RUN pip install fastapi uvicorn psycopg2 sqlalchemy pydantic alembic numpy pytz pandas python-multipart celery future tenacity
 
 COPY app /app/app
 

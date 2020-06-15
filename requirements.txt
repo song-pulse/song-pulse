@@ -1,6 +1,6 @@
 celery
 requests
-fastapi>=0.52.0,<0.54.0
+fastapi
 numpy
 pandas
 uvicorn
@@ -11,4 +11,5 @@ alembic
 python-multipart
 future
 spotipy
+tenacity
 
