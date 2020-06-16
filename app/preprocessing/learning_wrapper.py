@@ -13,7 +13,7 @@ class LearningWrapper:
     def __init__(self):
         self.dbSession = next(deps.get_db())
         self.learning = SongPulseAgent()
-        self.cleaning = DataCleaning()
+        self.cleaning = DataCleaning(crud.setting.get(self.dbSession, id=1))
 
     @staticmethod
     def calculate_baseline(baseline: float, counter: int, current_value: float):
