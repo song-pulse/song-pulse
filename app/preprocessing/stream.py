@@ -21,7 +21,7 @@ class Stream:
         acc_interval1 = None
         acc_interval2 = None
 
-        db_session = next(deps.get_db())
+        db_session = learning.get_db_session()
         # Get the files from the recording.
         files = crud.file.get_multi_for_recording(db_session, recording_id=rec_id)
 
