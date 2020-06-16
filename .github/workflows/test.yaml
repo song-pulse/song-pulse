@@ -1,0 +1,24 @@
+name: Master - Testing
+
+on:
+  push:
+    branches:
+      - 'master'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Build the stack
+        run: docker-compose build db web
+      - name: Start the stack
+        run: docker-compose up --no-deps -d db web
+      - name: Sleep
+        uses: jakejarvis/wait-action@master
+        with:
+          time: '30s'
+      - name: Check running containers
+        run: docker ps -a
+      - name: Run tests
+        run: docker exec -i song-pulse_web_1 /start_tests.sh

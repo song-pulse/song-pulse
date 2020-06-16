@@ -41,4 +41,3 @@ services:
       - GATSBY_API_URL=http://localhost:8080/
     ports:
       - "8000:8000"
-    network_mode: "service:web"
