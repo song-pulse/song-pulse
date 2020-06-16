@@ -1,35 +1,33 @@
 import itertools
 from collections import deque, Counter
-from app import crud
 
 
 class DataCleaning(object):
 
-    def __init__(self, db_session):
+    def __init__(self, db_settings):
 
-        self.settings = crud.setting.get(db_session, id=1)
-        self.prev_eda_tend = deque([], maxlen=self.settings.duration)
+        self.settings = db_settings
+        self.prev_eda_tend = deque([], maxlen=self.settings.duration)  # TODO initiate with baseline?
         self.temp_data = deque([], maxlen=self.settings.temp_latency)
-        self.prev_eda_stress = deque([], maxlen=self.settings.duration)
+        self.prev_eda_stress = deque([1], maxlen=self.settings.duration)
         self.prev_ibi = deque([], maxlen=self.settings.duration)
         self.prev_mean_rr = deque([], maxlen=self.settings.duration)
-        self.prev_mean_rr_stress = deque([], maxlen=self.settings.duration)
+        self.prev_mean_rr_stress = deque([1], maxlen=self.settings.duration)
         self.prev_mean_prr20 = deque([], maxlen=self.settings.duration)
-        self.prev_prr20_stress = deque([], maxlen=self.settings.duration)
+        self.prev_prr20_stress = deque([1], maxlen=self.settings.duration)
 
     def compute_mean_rr(self, ibi_value, ibi_baseline):
         relative_ibi = ibi_value - ibi_baseline
         self.prev_ibi.append(relative_ibi)
-        if len(self.prev_mean_rr) == 0:
-            return relative_ibi
-        mean_rr = sum(self.prev_mean_rr)/float(len(self.prev_mean_rr))
+        mean_rr = sum(self.prev_ibi)/float(len(self.prev_ibi))
         self.prev_mean_rr.append(mean_rr)
         return mean_rr
 
     def compute_prr20(self):
-        if len(self.prev_ibi) == 1:
+        if len(self.prev_ibi) <= 1:
             return 0
-        prr20 = ((len([i for i in self.prev_ibi if i >= 20])) * 100) / float(len(self.prev_ibi)-1)
+        # TODO why -1? It says so in the formula, but doesn't really make sense? If 1/3 values are >20, the percentage would be 50%?
+        prr20 = ((len([i for i in self.prev_ibi if (i * 1000) >= 20])) * 100) / float(len(self.prev_ibi)-1)
         self.prev_mean_prr20.append(prr20)
         return prr20
 
@@ -44,7 +42,8 @@ class DataCleaning(object):
         # else:
         return False
 
-    def detect_stress_level(self, value, threshold):
+    @staticmethod
+    def detect_stress_level(value, threshold):
         if value > threshold:
             return 2
         elif value < (threshold * -1):
@@ -70,10 +69,11 @@ class DataCleaning(object):
                         stress_level = 0
         return stress_level
 
-    def detect_change(self, prev_values, threshold):
+    @staticmethod
+    def detect_change(prev_values, threshold):
         if len(prev_values) == 0:
             return False
-        diff = prev_values[-1] - prev_values[0]
+        diff = abs(prev_values[-1] - prev_values[0])
         sliced_prev_values = deque(itertools.islice(prev_values, 1, len(prev_values)))
         # detect and increase if values have been increasing constantly and the difference is above threshold
         if all(i < j for i, j in zip(prev_values, sliced_prev_values)) and diff >= threshold:
@@ -83,7 +83,8 @@ class DataCleaning(object):
         else:
             return False
 
-    def majority_vote(self, mean_rr_stress, eda_stress, prr20_stress):
+    @staticmethod
+    def majority_vote(mean_rr_stress, eda_stress, prr20_stress):
         l = Counter([mean_rr_stress, eda_stress, prr20_stress])
         majority = l.most_common(1)[0][0]
 
