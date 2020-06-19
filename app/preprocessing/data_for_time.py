@@ -8,17 +8,23 @@ class DataForTime:
     #   The ID for the specific run
     #   The EDA value of this specific time
     #   The IBI value of this specific time
-    #   The ACC values of 2 intervals (1 interval = 3 seconds?) before the time and of this specific time.
+    #   The ACC values of 2 intervals (1 interval = 3 seconds?) in dictionaries before the time and of the current time
+    #    => [0] is the oldest values while [-1] is the current ones,
+    #    => if the stream just started, historic values might be x = 0, y = 0, z = 0.
     #   The Temp values of this specific time and of 30 seconds and 60 seconds after.
 
     def __init__(self):
-        self.timestamp = 0
-        self.runId = 0
+        self.timestamp: int = 0
+        self.runId: int = 0
 
-        self.edaValue = 0
-        self.ibiValue = 0
-        self.tempValue = 0
-        self.accValues = []
+        self.edaValue: float = 0
+        self.ibiValue: float = 0
+        self.tempValue: float = 0
+        self.accValues = [{"x": 0, "y": 0, "z": 0}, {"x": 0, "y": 0, "z": 0}, {"x": 0, "y": 0, "z": 0}]
 
     def __str__(self):
-        return str(self.timestamp) + " " + str(self.edaValue)  # TODO extend
+        return str(self.timestamp) + \
+               ", EDA: " + str(self.edaValue) + \
+               ", IBI: " + str(self.ibiValue) + \
+               ", TEMP: " + str(self.tempValue) + \
+               ", ACC: " + str(self.accValues)

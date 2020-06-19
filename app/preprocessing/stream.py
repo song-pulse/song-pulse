@@ -1,5 +1,4 @@
 from app import crud
-from app.api import deps
 from app.preprocessing.data_for_time import DataForTime
 from app.preprocessing.learning_wrapper import LearningWrapper
 from app.schemas.result import ResultCreate
@@ -16,10 +15,6 @@ class Stream:
         acc_data = []
         temp_data = []
         bvp_data = []
-        # The intervals are the data points for the acc before the time stamp.
-        # They are later needed for the data cleaning.
-        acc_interval1 = None
-        acc_interval2 = None
 
         db_session = learning.get_db_session()
         # Get the files from the recording.
@@ -48,10 +43,8 @@ class Stream:
 
         # Iterate over the eda file with its values
         for value in eda_data:
-            data_for_time_object = Stream.create_data_for_time_object(value, acc_data, acc_interval1, acc_interval2,
-                                                                      bvp_data, eda_data,
-                                                                      ibi_data, run_id,
-                                                                      temp_data)
+            data_for_time_object = Stream.create_data_for_time_object(value, acc_data, bvp_data, eda_data, ibi_data,
+                                                                      run_id, temp_data)
             song_id = learning.run(data_for_time_object, part_id)
             result = ResultCreate(timestamp=value.timestamp, song_id=song_id, verdict=-1,
                                   input=str(data_for_time_object))
@@ -62,9 +55,7 @@ class Stream:
     # This methods creates a data object for a given time stamp.
     # This object can then be given to the data cleaning for processing the data.
     @staticmethod
-    def create_data_for_time_object(value, acc_data, acc_interval1, acc_interval2, bvp_data, eda_data, ibi_data,
-                                          run_id,
-                                          temp_data):
+    def create_data_for_time_object(value, acc_data, bvp_data, eda_data, ibi_data, run_id, temp_data):
         data_for_time = DataForTime()
 
         # first add the run ID plus the time stamp
@@ -84,15 +75,19 @@ class Stream:
             if ibiValue.timestamp == value.timestamp:
                 data_for_time.bvpValue = ibiValue.value1
 
+        # The intervals are the data points for the acc before the time stamp.
+        # They are later needed for the data cleaning.
+        acc_interval1 = {"x": 0, "y": 0, "z": 0}
+        acc_interval2 = {"x": 0, "y": 0, "z": 0}
         # Iterate over the acc values and add the value at the given time stamp plus of two intervals from before.
         for accValue in acc_data:
             if accValue.timestamp == value.timestamp:
-                data_for_time.accValues.append(acc_interval1)
-                data_for_time.accValues.append(acc_interval2)
-                data_for_time.accValues.append(accValue.value1)
+                data_for_time.accValues[0] = (acc_interval1["x"], acc_interval1["y"], acc_interval1["z"])
+                data_for_time.accValues[1] = (acc_interval2["x"], acc_interval2["y"], acc_interval2["z"])
+                data_for_time.accValues[2] = (accValue.value1, accValue.value2, accValue.value3)
             else:
                 acc_interval1 = acc_interval2
-                acc_interval2 = accValue.value1 # TODO: integrate value1,value2,value3
+                acc_interval2 = {"x": accValue.value1, "y": accValue.value2, "z": accValue.value3}
 
         # Iterate over the temp values and add the value at the given time stamp.
         for tempValue in temp_data:

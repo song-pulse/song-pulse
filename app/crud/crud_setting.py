@@ -16,5 +16,8 @@ class CRUDSetting(CRUDBase[Setting, SettingCreate, SettingUpdate]):
         db_session.refresh(fresh_setting)
         return fresh_setting
 
+    def get(self, db_session: Session, id: int = 1) -> Setting:
+        return db_session.query(self.model).filter(self.model.id == id).first()
+
 
 setting = CRUDSetting(Setting)

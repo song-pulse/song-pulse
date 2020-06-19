@@ -1,10 +1,11 @@
 import numpy as np
+
 from app import crud
 from app.api import deps
 from app.mltraining.q_learning_music import SongPulseAgent
+from app.models.baseline import Baseline
 from app.preprocessing.data_for_time import DataForTime
 from app.preprocessing.data_preprocess import DataCleaning
-from app.models.baseline import Baseline
 from app.schemas.baseline import BaselineUpdate, BaselineCreate
 from app.util.action_song_converter import get_song_from_spotify
 
@@ -14,7 +15,7 @@ class LearningWrapper:
     def __init__(self):
         self.dbSession = next(deps.get_db())
         self.learning = SongPulseAgent()
-        self.cleaning = DataCleaning(crud.setting.get(self.dbSession, id=1))
+        self.cleaning = DataCleaning(crud.setting.get(self.dbSession))
 
     @staticmethod
     def calculate_baseline(baseline: float, counter: int, current_value: float):
