@@ -1,4 +1,5 @@
 from typing import List
+
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
 
@@ -19,6 +20,15 @@ class CRUDFile(CRUDBase[File, FileCreate, FileUpdate]):
 
     def get_multi_for_recording(self, db_session: Session, recording_id: int) -> List[File]:
         return db_session.query(self.model).filter(self.model.recording_id == recording_id).all()
+
+    def get_id_for_recording_and_name(self, db_session: Session, recording_id: int, name: str) -> int:
+        res = db_session.query(self.model).filter(self.model.recording_id == recording_id).filter(
+            name == self.model.name) \
+            .first()
+        if res:
+            return res.id
+        else:
+            return -1
 
 
 file = CRUDFile(File)
