@@ -35,7 +35,7 @@ async def authorize():
     return RedirectResponse(auth_url)
 
 
-@router.get("/queue")
+@router.post("/queue")
 async def queue(track: str, username: str = Cookie(None)):
     if username:
         auth_manager.username = username
