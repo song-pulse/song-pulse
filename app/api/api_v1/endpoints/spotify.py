@@ -25,7 +25,7 @@ async def callback(code: str):
     auth_manager.get_access_token(code, as_dict=False)
     auth_manager.username = None
     response = RedirectResponse("whoami")
-    response.set_cookie("username", code)
+    response.set_cookie("username", code, path="/spotify", httponly=True)
     return response
 
 
