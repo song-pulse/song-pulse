@@ -8,12 +8,13 @@ from app.preprocessing.data_for_time import DataForTime
 from app.preprocessing.learning_wrapper import LearningWrapper
 from app.schemas.result import ResultCreate
 from app.schemas.timestamp_values import TimestampValues
+from app.util.spotify_connector import queue_song
 
 
 class ProcessValue:
 
     @staticmethod
-    def single_value(part_id: int, rec_id: int, run_id: int, values: TimestampValues):
+    def single_value(part_id: int, rec_id: int, run_id: int, values: TimestampValues, spotify_username: str):
         learning = LearningWrapper()
         db_session = learning.get_db_session()
 
@@ -21,7 +22,8 @@ class ProcessValue:
         song_id = learning.run(data, part_id)
 
         result = ResultCreate(timestamp=data.timestamp, song_id=song_id, verdict=-1, input=str(data))
-        crud.result.create_with_run(db_session=db_session, obj_in=result, run_id=run_id)
+        result = crud.result.create_with_run(db_session=db_session, obj_in=result, run_id=run_id)
+        queue_song(db=db_session, song_url=result.song.link, spotify_username=spotify_username)
 
     @staticmethod
     def convert_to_data_for_time(db_session: Session, values: TimestampValues, rec_id: int, run_id: int) -> DataForTime:

@@ -28,8 +28,8 @@ def init_db(db_session):
                                       link="https://open.spotify.com/playlist/37i9dQZF1DXdxcBWuJkbcy?si=6AtOTL6VR5ipCTI2zD3Rzg")
         song_in = SongCreate(name="Olalla",
                              link="https://api.spotify.com/v1/tracks/4d4OJTq2Yl7TyiuGMLxa1h")
-        song2_in = SongCreate(name="Na Na Na",
-                              link="https://api.spotify.com/v1/tracks/4wEleZDYnwkHHudmxR23omA")
+        song2_in = SongCreate(name="Closed Place, Open World",
+                              link="https://api.spotify.com/v1/tracks/6CzIvlUbwqnsxjLzCbeyU4")
         song3_in = SongCreate(name="Don't Let Me Down",
                               link="https://api.spotify.com/v1/tracks/36fHADliwp4ColP0Gypg5W")
 

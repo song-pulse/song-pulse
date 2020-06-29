@@ -7,7 +7,6 @@ def get_song_from_spotify(db_session, action, participant_id):
         pl_type = 'Motivate'
         # choose  motivating playlist
     elif action == 1:
-        # TODO: here should be a third playlisttype added -> for example normal
         pl_type = 'Balance'
         # choose  normal playlist
     elif action == 2:
