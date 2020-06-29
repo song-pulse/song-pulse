@@ -1,7 +1,7 @@
 import tekore as tk
 from fastapi import APIRouter, Cookie, Depends
 from sqlalchemy.orm import Session
-from starlette.responses import RedirectResponse, Response
+from starlette.responses import RedirectResponse, Response, HTMLResponse
 
 from app import crud
 from app.api import deps
@@ -20,8 +20,9 @@ async def show(username: str = Cookie(None), db: Session = Depends(deps.get_db))
         spotify_data = crud.spotify.get(db_session=db, id=username)
         token = cred.refresh_user_token(spotify_data.refresh_token)
         with spotify.token_as(token):
-            response = Response()
-            response.set_cookie("username", spotify.current_user().id, path="/", httponly=True)
+            user = spotify.current_user()
+            response = HTMLResponse(content="ALL DONE, Hello " + user.display_name + "!")
+            response.set_cookie("username", user.id, httponly=True)
             return response
     return Response(status_code=400)
 
@@ -33,16 +34,11 @@ async def callback(code: str, db: Session = Depends(deps.get_db)):
         info = spotify.current_user()
         existing = crud.spotify.get(db_session=db, id=info.id)
         if not existing:
-            crud.spotify.create(db_session=db, obj_in=SpotifyCreate(id=info.id, token=token.access_token,
-                                                                    refresh_token=token.refresh_token,
-                                                                    expires_at=token.expires_at))
+            crud.spotify.create(db_session=db, obj_in=SpotifyCreate(id=info.id, refresh_token=token.refresh_token))
         else:
-            crud.spotify.update(db_session=db, db_obj=existing, obj_in=SpotifyUpdate(id=info.id,
-                                                                                     token=token.access_token,
-                                                                                     refresh_token=token.refresh_token,
-                                                                                     expires_at=token.expires_at))
+            crud.spotify.update(db_session=db, db_obj=existing, obj_in=SpotifyUpdate(id=info.id, refresh_token=token.refresh_token))
     response = RedirectResponse("whoami")
-    response.set_cookie("username", info.id, path="/", httponly=True)
+    response.set_cookie("username", info.id, httponly=True)
     return response
 
 

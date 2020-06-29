@@ -17,14 +17,12 @@ def queue_song(db, song_url: str, spotify_username: str):
 
 
 def add_songs_for_playlist(db, playlist_id: int, playlist_link: str):
-    conf = tk.config_from_environment()
-    cred = tk.Credentials(*conf)
-    token = cred.request_client_token
+    client_id, client_secret, redirect_uri = tk.config_from_environment()
+    token = tk.request_client_token(client_id, client_secret)
     spotify = tk.Spotify(token)
 
-    tracks = spotify.playlist(playlist_id=playlist_link.split("/").pop(-1).split("?").pop(0),
-                              fields="items(track(name,href))")  # ask spotify for tracks
-    for item in tracks['items']:
-        name = item['track']['name']
-        link = item['track']['href']
+    playlist = spotify.playlist(playlist_id=playlist_link.split("/").pop(-1).split("?").pop(0))  # ask spotify for tracks
+    for item in playlist.tracks.items:
+        name = item.track.name
+        link = item.track.href
         crud.song.create_with_playlist(db, obj_in=SongCreate(name=name, link=link), playlist_id=playlist_id)
