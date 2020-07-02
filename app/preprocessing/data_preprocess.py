@@ -15,6 +15,10 @@ class DataCleaning(object):
         self.prev_mean_rr_stress = deque([1], maxlen=self.settings.duration)
         self.prev_mean_prr20 = deque([], maxlen=self.settings.duration)
         self.prev_prr20_stress = deque([1], maxlen=self.settings.duration)
+        self.prev_raw_acc = {'x': 0, 'y': 0, 'z': 0}
+        self.prev_cumulated_acc = deque([0.0], maxlen=self.settings.duration)
+        # 6 is based on getting data every 10 secs so the list represents the accs of one number of measures per minute
+        self.summarized_accs = deque([0], maxlen=6)
 
     def compute_mean_rr(self, ibi_value, ibi_baseline):
         relative_ibi = ibi_value - ibi_baseline
@@ -26,21 +30,34 @@ class DataCleaning(object):
     def compute_prr20(self):
         if len(self.prev_ibi) <= 1:
             return 0
-        # TODO why -1? It says so in the formula, but doesn't really make sense? If 1/3 values are >20, the percentage would be 50%?
         prr20 = ((len([i for i in self.prev_ibi if (i * 1000) >= 20])) * 100) / float(len(self.prev_ibi)-1)
         self.prev_mean_prr20.append(prr20)
         return prr20
 
     def detect_movement(self, acc_values):
-        # TODO:
-        # if len(acc_values) < 3:
-        #     return False
-        # if acc_values[2] > acc_values[1] > acc_values[0]:
-        #     diff = acc_values[2] - acc_values[1] - acc_values[0]
-        #     if diff >= self.settings.acc_threshold:
-        #         return True
-        # else:
-        return False
+        self.process_acc(acc_values)
+        if len(self.prev_cumulated_acc) < 3:
+            return False
+        if self.prev_cumulated_acc[2] > self.prev_cumulated_acc[1] > self.prev_cumulated_acc[0]:
+            diff = self.prev_cumulated_acc[2] - self.prev_cumulated_acc[1] - self.prev_cumulated_acc[0]
+            if diff >= self.settings.acc_threshold:
+                return True
+        else:
+            return False
+
+    def process_acc(self, acc_values):
+        # TODO check if this makes sense and write tests
+        for value in acc_values:
+            summarized_acc = max(abs(value['x'] - self.prev_raw_acc['x']), abs(value['y'] - self.prev_raw_acc['y']),
+                                 abs(value['z'] - self.prev_raw_acc['z']))
+            self.summarized_accs.append(summarized_acc)
+            filtered_acc = self.prev_cumulated_acc[-1] * 0.9 + (sum(self.summarized_accs) /
+                                                                float(len(self.summarized_accs)) * 0.1)
+
+            self.prev_cumulated_acc.append(filtered_acc)
+            self.prev_raw_acc['x'] = value['x']
+            self.prev_raw_acc['y'] = value['y']
+            self.prev_raw_acc['z'] = value['z']
 
     @staticmethod
     def detect_stress_level(value, threshold):
