@@ -26,7 +26,7 @@ def init_db(db_session):
         playlist2_in = PlaylistCreate(type="Motivate",
                                       link="https://open.spotify.com/playlist/37i9dQZF1DXdxcBWuJkbcy?si=6AtOTL6VR5ipCTI2zD3Rzg")
         playlist3_in = PlaylistCreate(type="Balance",
-                                      link="https://open.spotify.com/playlist/37i9dQZF1DXdxcBWuJkbcy?si=6AtOTL6VR5ipCTI2zD3Rzg")
+                                      link="https://open.spotify.com/playlist/0011i6xvtbolmkbqVut6Y5?si=pjgea7sjT6OVENHLx_q2LA")
 
         sensor_in = SensorCreate(name="EDA", frequency=10)
         sensor2_in = SensorCreate(name="IBI", frequency=10)
