@@ -3,6 +3,8 @@ from typing import List
 
 from fastapi import APIRouter, Depends, status, HTTPException, Cookie
 from sqlalchemy.orm import Session
+from starlette.responses import RedirectResponse
+from starlette.status import HTTP_303_SEE_OTHER
 
 from app import crud
 from app.api import deps
@@ -103,10 +105,10 @@ def get_runs(*, rec_id: int, db: Session = Depends(deps.get_db)):
 
 
 @router.post("/{part_id}/recordings/{rec_id}/runs", response_model=Run)
-def start_run(*, part_id: int, rec_id: int, run: RunCreate, db: Session = Depends(deps.get_db)):
+def start_run(*, username: str = Cookie(None), part_id: int, rec_id: int, run: RunCreate, db: Session = Depends(deps.get_db)):
     run.is_running = True
     fresh_run = crud.run.create_with_recoding(db_session=db, obj_in=run, recording_id=rec_id)
-    celery_app.send_task("app.worker.run", args=[part_id, rec_id, fresh_run.id, -100, 0, 0, 0, 0, 0, 0])
+    celery_app.send_task("app.worker.run", args=[part_id, rec_id, fresh_run.id, -100, 0, 0, 0, 0, 0, 0, username])
     return fresh_run
 
 

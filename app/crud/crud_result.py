@@ -17,5 +17,14 @@ class CRUDResult(CRUDBase[Result, ResultCreate, ResultUpdate]):
         db_session.refresh(fresh_result)
         return fresh_result
 
+    def get_prev(self, db_session: Session, run_id: int, limit: int = 3) -> [Result]:
+        return db_session.query(self.model).filter(self.model.run_id == run_id) \
+            .order_by(self.model.id.desc()).limit(limit).all()
+
+    def get_last_queued(self, db_session: Session, run_id: int) -> Result:
+        return db_session.query(self.model).filter(self.model.run_id == run_id) \
+            .filter(self.model.song_queued)\
+            .order_by(self.model.id.desc()).first()
+
 
 result = CRUDResult(Result)

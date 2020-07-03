@@ -7,7 +7,6 @@ from app.models.baseline import Baseline
 from app.preprocessing.data_for_time import DataForTime
 from app.preprocessing.data_preprocess import DataCleaning
 from app.schemas.baseline import BaselineUpdate, BaselineCreate
-from app.util.action_song_converter import get_song_from_spotify
 
 
 class LearningWrapper:
@@ -66,8 +65,7 @@ class LearningWrapper:
                                      obj_in=self.createBaselineUpdate(baseline, temp_baseline))
 
         tendency = self.cleaning.run(data, eda_baseline, ibi_baseline)
-        action = self.learning.run_with_tendency(self.dbSession, tendency, data.timestamp, data.runId, part_id)
-        return get_song_from_spotify(db_session=self.dbSession, action=action, participant_id=part_id)
+        return self.learning.run_with_tendency(self.dbSession, tendency, data.timestamp, data.runId, part_id)
 
     def get_db_session(self):
         return self.dbSession

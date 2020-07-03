@@ -10,7 +10,6 @@ pydantic
 alembic
 python-multipart
 future
-spotipy
 tekore
 tenacity
 
