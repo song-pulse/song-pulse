@@ -8,7 +8,7 @@ from app.schemas.timestamp_values import TimestampValues
 def run(part_id: int, rec_id: int, run_id: int, timestamp: int, eda: float, ibi: float, temp: float, acc_x: float,
         acc_y: float, acc_z: float, spotify_username: str):
     if timestamp < 0:
-        Stream.start(part_id, rec_id, run_id)
+        Stream.start(part_id, rec_id, run_id, spotify_username)
     else:
         values = TimestampValues(timestamp=timestamp, eda=eda, ibi=ibi, temp=temp, acc_x=acc_x, acc_y=acc_y,
                                  acc_z=acc_z)
