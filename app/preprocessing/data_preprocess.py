@@ -1,5 +1,6 @@
 import itertools
 from collections import deque, Counter
+import numpy as np
 
 
 class DataCleaning(object):
@@ -36,17 +37,21 @@ class DataCleaning(object):
 
     def detect_movement(self, acc_values):
         self.process_acc(acc_values)
-        if len(self.prev_cumulated_acc) < 3:
-            return False
-        if self.prev_cumulated_acc[2] > self.prev_cumulated_acc[1] > self.prev_cumulated_acc[0]:
-            diff = self.prev_cumulated_acc[2] - self.prev_cumulated_acc[1] - self.prev_cumulated_acc[0]
-            if diff >= self.settings.acc_threshold:
-                return True
+        # if len(self.prev_cumulated_acc) < 3:
+        #     return False
+        # Logic: movement was in past, that's why ACC curve needs to be decreasing
+        # not sure this works for our case, what if user has been moving for a bit
+        # if self.prev_cumulated_acc[2] > self.prev_cumulated_acc[1] > self.prev_cumulated_acc[0]:
+        #     diff = self.prev_cumulated_acc[2] - self.prev_cumulated_acc[0]
+        #     if diff >= self.settings.acc_threshold:
+        #         return True
+        # TODO qualitative test whether this works
+        if np.mean(self.prev_cumulated_acc) >= self.settings.acc_threshold:
+            return True
         else:
             return False
 
     def process_acc(self, acc_values):
-        # TODO check if this makes sense and write tests
         for value in acc_values:
             summarized_acc = max(abs(value['x'] - self.prev_raw_acc['x']), abs(value['y'] - self.prev_raw_acc['y']),
                                  abs(value['z'] - self.prev_raw_acc['z']))
