@@ -50,4 +50,58 @@ class PreprocessingTest(TestCase):
             self.data_clean.prev_ibi.append(i)
         self.assertEqual(50, self.data_clean.compute_prr20())
 
+    def test_process_acc_first_run(self):
+        acc_values = [{'x': 0, 'y': 0, 'z': 0},
+                      {'x': 0, 'y': 0, 'z': 0},
+                      {'x': 1, 'y': 7, 'z': 50}]
+        self.data_clean.process_acc(acc_values)
+        self.assertEqual([0, 0, 0, 50], list(self.data_clean.summarized_accs))
+        self.assertEqual([0, 0, 1.25], list(self.data_clean.prev_cumulated_acc))
+
+    def test_process_acc_constant_move(self):
+        acc_values = [{'x': 1, 'y': 7, 'z': 50},
+                      {'x': 1, 'y': 7, 'z': 50},
+                      {'x': 1, 'y': 7, 'z': 50},
+                      {'x': 1, 'y': 7, 'z': 50},
+                      {'x': 1, 'y': 7, 'z': 50},
+                      {'x': 1, 'y': 7, 'z': 50},
+                      {'x': 1, 'y': 7, 'z': 50}
+                      ]
+
+        self.data_clean.process_acc(acc_values)
+        self.assertEqual([0, 0, 0, 0, 0, 0], list(self.data_clean.summarized_accs))
+        self.assertAlmostEqual(5.601, self.data_clean.prev_cumulated_acc[0], places=3)
+        self.assertAlmostEqual(5.8743, self.data_clean.prev_cumulated_acc[1], places=3)
+        self.assertAlmostEqual(5.2868, self.data_clean.prev_cumulated_acc[2], places=3)
+
+    def test_preprocess_acc_move(self):
+        acc_values = [{'x': 1, 'y': 7, 'z': 50},
+                      {'x': 3, 'y': 4, 'z': 20},
+                      {'x': -1, 'y': 2, 'z': 10},
+                      {'x': 5, 'y': -3, 'z': 24},
+                      {'x': 12, 'y': 12, 'z': 12},
+                      {'x': 14, 'y': 5, 'z': 23},
+                      {'x': -5, 'y': 3, 'z': 30}]
+        self.data_clean.process_acc(acc_values)
+        self.assertEqual([30, 10, 14, 15, 11, 19], list(self.data_clean.summarized_accs))
+        self.assertAlmostEqual(9.262, self.data_clean.prev_cumulated_acc[0], places=3)
+        self.assertAlmostEqual(10.5025, self.data_clean.prev_cumulated_acc[1], places=3)
+        self.assertAlmostEqual(11.10228, self.data_clean.prev_cumulated_acc[2], places=3)
+
+    def test_detect_movement_false(self):
+        acc_values = [{'x': 1, 'y': 1, 'z': 1},
+                      {'x': 1, 'y': 2, 'z': 1},
+                      {'x': 0, 'y': 1, 'z': 2},
+                      {'x': -1, 'y': 0, 'z': 1}
+                      ]
+        self.assertFalse(self.data_clean.detect_movement(acc_values))
+
+    def test_detect_movement_true(self):
+        acc_values = [{'x': 1, 'y': 1, 'z': 10},
+                      {'x': 1, 'y': 2, 'z': 10},
+                      {'x': 0, 'y': 1, 'z': 20},
+                      {'x': -1, 'y': 0, 'z': 10}
+                      ]
+        self.assertTrue(self.data_clean.detect_movement(acc_values))
+
 
