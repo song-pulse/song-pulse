@@ -1,21 +1,23 @@
-from typing import List
 from datetime import datetime
+from typing import List
 
-from fastapi import APIRouter, Depends, status, HTTPException
+from fastapi import APIRouter, Depends, status, HTTPException, Cookie
 from sqlalchemy.orm import Session
+from starlette.responses import RedirectResponse
+from starlette.status import HTTP_303_SEE_OTHER
 
 from app import crud
+from app.api import deps
 from app.core.celery_app import celery_app
-from app.util.song_creator import add_songs_for_playlist
 from app.schemas.file import File, FileCreate
 from app.schemas.participant import Participant, ParticipantCreate
 from app.schemas.playlist import Playlist, PlaylistCreate, PlaylistUpdate
 from app.schemas.recording import Recording, RecordingCreate
 from app.schemas.result import Result, ResultUpdate
 from app.schemas.run import Run, RunCreate
-from app.schemas.value import Value, ValueCreate
 from app.schemas.timestamp_values import TimestampValues
-from app.api import deps
+from app.schemas.value import Value, ValueCreate
+from app.util.spotify_connector import add_songs_for_playlist
 
 router = APIRouter()
 
@@ -103,10 +105,10 @@ def get_runs(*, rec_id: int, db: Session = Depends(deps.get_db)):
 
 
 @router.post("/{part_id}/recordings/{rec_id}/runs", response_model=Run)
-def start_run(*, part_id: int, rec_id: int, run: RunCreate, db: Session = Depends(deps.get_db)):
+def start_run(*, username: str = Cookie(None), part_id: int, rec_id: int, run: RunCreate, db: Session = Depends(deps.get_db)):
     run.is_running = True
     fresh_run = crud.run.create_with_recoding(db_session=db, obj_in=run, recording_id=rec_id)
-    celery_app.send_task("app.worker.run", args=[part_id, rec_id, fresh_run.id, -100, 0, 0, 0, 0, 0, 0])
+    celery_app.send_task("app.worker.run", args=[part_id, rec_id, fresh_run.id, -100, 0, 0, 0, 0, 0, 0, username])
     return fresh_run
 
 
@@ -166,7 +168,8 @@ def start_mobile_recording(*, part_id: int, db: Session = Depends(deps.get_db)):
 # during a recording session.
 # We do not save null values.
 @router.post("/{part_id}/recordings/{rec_id}/values/timestamps", response_model=Run)
-def create_mobile_value(*, part_id: int, rec_id: int, tv: TimestampValues, db: Session = Depends(deps.get_db)):
+def create_mobile_value(*, username: str = Cookie(None), part_id: int, rec_id: int, tv: TimestampValues,
+                        db: Session = Depends(deps.get_db)):
     files = crud.file.get_multi_for_recording(db_session=db, recording_id=rec_id)
     for file in files:
         value = None
@@ -183,6 +186,7 @@ def create_mobile_value(*, part_id: int, rec_id: int, tv: TimestampValues, db: S
             crud.value.create_with_file(db_session=db, obj_in=value, file_id=file.id)
 
     current_run = crud.run.get_first_for_recording(db_session=db, recording_id=rec_id)
+
     celery_app.send_task("app.worker.run", args=[part_id,
                                                  rec_id,
                                                  current_run.id,
@@ -192,5 +196,6 @@ def create_mobile_value(*, part_id: int, rec_id: int, tv: TimestampValues, db: S
                                                  tv.temp,
                                                  tv.acc_x,
                                                  tv.acc_y,
-                                                 tv.acc_z])
+                                                 tv.acc_z,
+                                                 username])
     return current_run

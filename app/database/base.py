@@ -13,3 +13,4 @@ from ..models.file import File  # noqa
 from ..models.baseline import Baseline  # noqa
 from ..models.setting import Setting  # noqa
 from ..models.qtable import QTable  # noqa
+from ..models.spotify import Spotify # noqa

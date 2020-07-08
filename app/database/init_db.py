@@ -9,6 +9,7 @@ from app.schemas.song import SongCreate
 # make sure all SQL Alchemy models are imported before initializing DB
 # otherwise, SQL Alchemy might fail to initialize relationships properly
 # for more details: https://github.com/tiangolo/full-stack-fastapi-postgresql/issues/28
+from app.util.spotify_connector import add_songs_for_playlist
 
 
 def init_db(db_session):
@@ -25,18 +26,12 @@ def init_db(db_session):
         playlist2_in = PlaylistCreate(type="Motivate",
                                       link="https://open.spotify.com/playlist/37i9dQZF1DXdxcBWuJkbcy?si=6AtOTL6VR5ipCTI2zD3Rzg")
         playlist3_in = PlaylistCreate(type="Balance",
-                                      link="https://open.spotify.com/playlist/37i9dQZF1DXdxcBWuJkbcy?si=6AtOTL6VR5ipCTI2zD3Rzg")
-        song_in = SongCreate(name="Olalla",
-                             link="https://api.spotify.com/v1/tracks/4d4OJTq2Yl7TyiuGMLxa1h")
-        song2_in = SongCreate(name="Na Na Na",
-                              link="https://api.spotify.com/v1/tracks/4wEleZDYnwkHHudmxR23omA")
-        song3_in = SongCreate(name="Don't Let Me Down",
-                              link="https://api.spotify.com/v1/tracks/36fHADliwp4ColP0Gypg5W")
+                                      link="https://open.spotify.com/playlist/0011i6xvtbolmkbqVut6Y5?si=pjgea7sjT6OVENHLx_q2LA")
 
-        sensor_in = SensorCreate(name="EDA", frequency=180)
-        sensor2_in = SensorCreate(name="IBI", frequency=180)
-        sensor3_in = SensorCreate(name="TEMP", frequency=60)
-        sensor4_in = SensorCreate(name="ACC", frequency=180)
+        sensor_in = SensorCreate(name="EDA", frequency=10)
+        sensor2_in = SensorCreate(name="IBI", frequency=10)
+        sensor3_in = SensorCreate(name="TEMP", frequency=10)
+        sensor4_in = SensorCreate(name="ACC", frequency=10)
 
         crud.sensor.create(db_session, obj_in=sensor_in)
         crud.sensor.create(db_session, obj_in=sensor2_in)
@@ -45,11 +40,11 @@ def init_db(db_session):
 
         crud.participant.create(db_session, obj_in=participant_in)
         crud.playlist.create_with_participant(db_session, obj_in=playlist_in, participant_id=1)
-        crud.song.create_with_playlist(db_session, obj_in=song_in, playlist_id=1)
+        add_songs_for_playlist(db=db_session, playlist_id=1, playlist_link=playlist_in.link)
         crud.playlist.create_with_participant(db_session, obj_in=playlist2_in, participant_id=1)
-        crud.song.create_with_playlist(db_session, obj_in=song2_in, playlist_id=2)
+        add_songs_for_playlist(db=db_session, playlist_id=2, playlist_link=playlist2_in.link)
         crud.playlist.create_with_participant(db_session, obj_in=playlist3_in, participant_id=1)
-        crud.song.create_with_playlist(db_session, obj_in=song3_in, playlist_id=3)
+        add_songs_for_playlist(db=db_session, playlist_id=3, playlist_link=playlist3_in.link)
 
     setting = crud.setting.get(db_session)
     if not setting:
