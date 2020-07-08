@@ -10,3 +10,4 @@ class Song(Base):
     playlist_id = Column(Integer, ForeignKey("playlist.id"))
     name = Column(String)
     link = Column(String)
+    duration = Column(Integer)

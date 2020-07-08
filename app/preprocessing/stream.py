@@ -1,13 +1,13 @@
 from app import crud
 from app.preprocessing.data_for_time import DataForTime
 from app.preprocessing.learning_wrapper import LearningWrapper
-from app.schemas.result import ResultCreate
+from app.util.song_queuer import queue_song_if_needed
 
 
 class Stream:
 
     @staticmethod
-    def start(part_id, rec_id, run_id):
+    def start(part_id, rec_id, run_id, spotify_username):
         learning = LearningWrapper()
         # The values for the different sensors are being stored in those lists.
         eda_data = []
@@ -45,12 +45,9 @@ class Stream:
         for value in eda_data:
             data_for_time_object = Stream.create_data_for_time_object(value, acc_data, bvp_data, eda_data, ibi_data,
                                                                       run_id, temp_data)
-            song_id = learning.run(data_for_time_object, part_id)
-            result = ResultCreate(timestamp=value.timestamp, song_id=song_id, verdict=-1,
-                                  input=str(data_for_time_object))
+            action = learning.run(data_for_time_object, part_id)
+            result = queue_song_if_needed(db_session, data_for_time_object, action, part_id, run_id, spotify_username)
             crud.result.create_with_run(db_session=db_session, obj_in=result, run_id=run_id)
-
-        # TODO SET RUN TO running = false
 
     # This methods creates a data object for a given time stamp.
     # This object can then be given to the data cleaning for processing the data.

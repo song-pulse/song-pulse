@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from pydantic import BaseModel
 
 from .song import Song
@@ -8,6 +10,9 @@ class ResultBase(BaseModel):
     song_id: int
     verdict: int
     input: str
+    action: int
+    song_queued: bool = False
+    song_plays_until: datetime = datetime.now()
 
 
 class ResultCreate(ResultBase):

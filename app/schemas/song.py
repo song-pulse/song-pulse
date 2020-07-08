@@ -4,6 +4,7 @@ from pydantic import BaseModel
 class SongBase(BaseModel):
     name: str
     link: str
+    duration: int
 
 
 class SongCreate(SongBase):
