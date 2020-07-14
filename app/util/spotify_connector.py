@@ -15,6 +15,8 @@ def queue_song(db: Session, song_url: str, spotify_username: str):
         with spotify.token_as(token):
             uri = "spotify:track:" + song_url.split("/").pop(-1)
             spotify.playback_queue_add(uri)
+    else:
+        print("ERROR: NO USERNAME - " + str(spotify_username))
 
 
 def get_left_playtime(db: Session, spotify_username: str) -> int:
@@ -26,7 +28,13 @@ def get_left_playtime(db: Session, spotify_username: str) -> int:
         token = cred.refresh_user_token(spotify_data.refresh_token)
         with spotify.token_as(token):
             current = spotify.playback_currently_playing()
-            return current.item.duration_ms - current.progress_ms
+            print(current)
+            if current:
+                return current.item.duration_ms - current.progress_ms
+            else:
+                return 0
+    else:
+        return 0
 
 
 def add_songs_for_playlist(db, playlist_id: int, playlist_link: str):

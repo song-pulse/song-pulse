@@ -20,9 +20,8 @@ def queue_song_if_needed(db_session: Session, data: DataForTime, action: int, pa
         link = song.link
         duration = song.duration
         queue_song(db=db_session, song_url=link, spotify_username=spotify_username)
-        song_plays_until = song_plays_until \
-                           + timedelta(milliseconds=get_left_playtime(db_session, spotify_username)) \
-                           + timedelta(milliseconds=duration)
+        wait_for_ms = get_left_playtime(db_session, spotify_username) + duration
+        song_plays_until = song_plays_until + timedelta(milliseconds=wait_for_ms)
 
     return ResultCreate(timestamp=data.timestamp, song_id=song.id, verdict=-1, input=str(data), action=action,
                         song_queued=should_queue, song_plays_until=song_plays_until)
@@ -41,7 +40,7 @@ def get_song_for_action(db_session: Session, action: int, participant_id: int) -
         # choose  relaxing playlist
     playlist = crud.playlist.get_by_participant_and_type(db_session=db_session, participant_id=participant_id,
                                                          plist_type=pl_type)
-    random_song = random.randint(len(playlist.songs))
+    random_song = random.randint(len(playlist.songs)-1)
     return playlist.songs[random_song]
 
 
