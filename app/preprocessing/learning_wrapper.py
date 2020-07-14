@@ -64,8 +64,8 @@ class LearningWrapper:
                                      db_obj=baseline,
                                      obj_in=self.createBaselineUpdate(baseline, temp_baseline))
 
-        tendency = self.cleaning.run(data, eda_baseline, ibi_baseline)
-        return self.learning.run_with_tendency(self.dbSession, tendency, data.timestamp, data.runId, part_id)
+        return self.cleaning.run(data, eda_baseline, ibi_baseline)
+        # return self.learning.run_with_tendency(self.dbSession, tendency, data.timestamp, data.runId, part_id)
 
     def get_db_session(self):
         return self.dbSession
