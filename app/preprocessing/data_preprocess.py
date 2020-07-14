@@ -8,7 +8,7 @@ class DataCleaning(object):
     def __init__(self, db_settings):
 
         self.settings = db_settings
-        self.prev_eda_tend = deque([], maxlen=self.settings.duration)  # TODO initiate with baseline?
+        self.prev_eda_tend = deque([], maxlen=self.settings.duration)
         self.temp_data = deque([], maxlen=self.settings.temp_latency)
         self.prev_eda_stress = deque([1], maxlen=self.settings.duration)
         self.prev_ibi = deque([], maxlen=self.settings.duration)
@@ -37,15 +37,6 @@ class DataCleaning(object):
 
     def detect_movement(self, acc_values):
         self.process_acc(acc_values)
-        # if len(self.prev_cumulated_acc) < 3:
-        #     return False
-        # Logic: movement was in past, that's why ACC curve needs to be decreasing
-        # not sure this works for our case, what if user has been moving for a bit
-        # if self.prev_cumulated_acc[2] > self.prev_cumulated_acc[1] > self.prev_cumulated_acc[0]:
-        #     diff = self.prev_cumulated_acc[2] - self.prev_cumulated_acc[0]
-        #     if diff >= self.settings.acc_threshold:
-        #         return True
-        # TODO qualitative test whether this works
         if np.mean(self.prev_cumulated_acc) >= self.settings.acc_threshold:
             return True
         else:
@@ -58,11 +49,12 @@ class DataCleaning(object):
             self.summarized_accs.append(summarized_acc)
             filtered_acc = self.prev_cumulated_acc[-1] * 0.9 + (sum(self.summarized_accs) /
                                                                 float(len(self.summarized_accs)) * 0.1)
-
             self.prev_cumulated_acc.append(filtered_acc)
             self.prev_raw_acc['x'] = value['x']
             self.prev_raw_acc['y'] = value['y']
             self.prev_raw_acc['z'] = value['z']
+
+            return filtered_acc
 
     @staticmethod
     def detect_stress_level(value, threshold):
