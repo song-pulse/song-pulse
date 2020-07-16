@@ -4,9 +4,9 @@ from numpy import random
 from sqlalchemy.orm import Session
 
 from app import crud
+from app.models.result import Result
 from app.models.song import Song
 from app.preprocessing.data_for_time import DataForTime
-from app.models.result import Result
 from app.schemas.result import ResultCreate
 from app.util.spotify_connector import get_left_playtime, queue_song
 
@@ -47,7 +47,7 @@ def get_song_for_action(db_session: Session, action: int, participant_id: int) -
 def should_queue_song(db_session: Session, run_id: int, action: int) -> bool:
     last_queued_result = crud.result.get_last_queued(db_session, run_id)
     # only if the last song we queued is about to end!
-    if not last_queued_result or datetime.now() + timedelta(seconds=10) >= last_queued_result.song_plays_until:
+    if not last_queued_result or datetime.now() + timedelta(seconds=20) >= last_queued_result.song_plays_until:
         prev_results = crud.result.get_prev(db_session, run_id, 12)  # a result every 10sec -> look at the last 2min
         return action_majority(prev_results, action)
     return False

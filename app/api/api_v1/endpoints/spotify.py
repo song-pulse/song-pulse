@@ -23,7 +23,7 @@ async def show(username: str = Cookie(None), db: Session = Depends(deps.get_db))
         with spotify.token_as(token):
             user = spotify.current_user()
             response = HTMLResponse(content="ALL DONE, Hello " + user.display_name + "!")
-            response.set_cookie("username", user.id, httponly=True)
+            response.set_cookie("username", user.id)
             return response
     return Response(status_code=400)
 
@@ -39,7 +39,7 @@ async def callback(code: str, db: Session = Depends(deps.get_db)):
         else:
             crud.spotify.update(db_session=db, db_obj=existing, obj_in=SpotifyUpdate(id=info.id, refresh_token=token.refresh_token))
     response = RedirectResponse("whoami", status_code=HTTP_303_SEE_OTHER)
-    response.set_cookie("username", info.id, httponly=True)
+    response.set_cookie("username", info.id)
     return response
 
 
