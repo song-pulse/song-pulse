@@ -1,5 +1,5 @@
 from unittest import TestCase
-from app.tests.preprocessing.dummy_data import Settings
+from app.tests.preprocessing.dummy_data import Settings, Data
 from app.preprocessing.data_preprocess import DataCleaning
 
 
@@ -104,4 +104,34 @@ class PreprocessingTest(TestCase):
                       ]
         self.assertTrue(self.data_clean.detect_movement(acc_values))
 
+    def test_validate_stress_first_iteration(self):
+        data = Data(movement=False)
+        self.assertEqual(1, self.data_clean.validate_stress_level(data,
+                                                                  self.data_clean.prev_eda_tend,
+                                                                  self.data_clean.prev_eda_stress,
+                                                                  stress_threshold=self.data_clean.settings.stress_threshold,
+                                                                  change=True))
 
+    def test_validate_high_stress(self):
+        data = Data(movement=False)
+        prev_eda_values = [6, 12, 24]
+        for i in prev_eda_values:
+            self.data_clean.prev_eda_tend.append(i)
+
+        self.assertEqual(2, self.data_clean.validate_stress_level(data,
+                                                                  self.data_clean.prev_eda_tend,
+                                                                  self.data_clean.prev_eda_stress,
+                                                                  stress_threshold=self.data_clean.settings.stress_threshold,
+                                                                  change=True))
+
+    def test_validate_low_stress(self):
+        data = Data(movement=False)
+        prev_eda_values = [0.2, -0.11, -0.8]
+        for i in prev_eda_values:
+            self.data_clean.prev_eda_tend.append(i)
+
+        self.assertEqual(0, self.data_clean.validate_stress_level(data,
+                                                                  self.data_clean.prev_eda_tend,
+                                                                  self.data_clean.prev_eda_stress,
+                                                                  stress_threshold=self.data_clean.settings.stress_threshold,
+                                                                  change=True))
