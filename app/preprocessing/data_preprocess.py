@@ -54,8 +54,6 @@ class DataCleaning(object):
             self.prev_raw_acc['y'] = value['y']
             self.prev_raw_acc['z'] = value['z']
 
-            return filtered_acc
-
     @staticmethod
     def detect_stress_level(value, threshold):
         if value > threshold:
@@ -67,20 +65,12 @@ class DataCleaning(object):
 
     def validate_stress_level(self, data, prev_values, prev_stress, change, stress_threshold):
         stress_level = 1
-        if len(prev_stress) == 0:
-            return 1
-        if len(prev_values) >= self.settings.duration:
+        if len(prev_values) and len(prev_stress) != 0:
             if not self.detect_movement(data.accValues):
                 if change:
                     stress_level = self.detect_stress_level(prev_values[-1], stress_threshold)
                 else:
                     stress_level = prev_stress[-1]
-            else:
-                if not self.detect_movement(data.accValues):
-                    if prev_values[-1] > stress_threshold:
-                        stress_level = 2
-                    elif prev_values[-1] < (stress_threshold * -1):
-                        stress_level = 0
         return stress_level
 
     @staticmethod
