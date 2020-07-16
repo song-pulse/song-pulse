@@ -2,6 +2,7 @@ from app.preprocessing.data_preprocess import DataCleaning
 from app.tests.preprocessing.dummy_data import Settings
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
 
 
 class ThresholdsEval:
@@ -59,9 +60,59 @@ class ThresholdsEval:
         print(movement_detected)
         print(len(acc_simulation))
 
+    @staticmethod
+    def get_baseline(path):
+        baseline_data = pd.read_csv(path, skiprows=1).mean(axis=0)
+        if path.endswith('IBI.csv'):
+            return baseline_data[1]
+        else:
+            return baseline_data[0]
+
+    def define_eda_thresholds(self, measure, baseline_path, data_calm, data_stressed):
+        baseline = self.get_baseline(baseline_path)
+        values_middle = pd.read_csv(baseline_path).iloc[::40, :]
+        values_calm = pd.read_csv(data_calm, skiprows=1).iloc[::40, :]
+        values_stressed = pd.read_csv(data_stressed, skiprows=1).iloc[::40, :]
+        relative_values_calm = values_calm - baseline
+        relative_values_stressed = values_stressed - baseline
+        relative_values_middle = values_middle - baseline
+        # mean_values_calm = relative_values_calm.values.mean()
+        # max_values_calm = relative_values_calm.values.max()
+        # min_values_calm = relative_values_calm.values.min()
+        # mean_values_stressed = relative_values_stressed.values.mean()
+        # max_values_stressed = relative_values_stressed.values.max()
+        # min_values_stressed = relative_values_stressed.values.min()
+        cutoff = min(len(relative_values_calm), len(relative_values_stressed), len(relative_values_middle))
+
+        # reduce length of series to be able to plot them in same time
+        cutoff_calm = relative_values_calm.tail(cutoff)
+        cutoff_middle = relative_values_middle.tail(cutoff)
+        cutoff_stressed = relative_values_stressed.tail(cutoff)
+
+        values = {'stressed': cutoff_stressed.values[:, 0],
+                  'relaxed': cutoff_calm.values[:, 0],
+                  'normal': cutoff_middle.values[:, 0],
+                  'upper threshold': [self.settings.eda_threshold] * len(cutoff_middle),
+                  'lower threshold': [self.settings.eda_threshold * -1] * (len(cutoff_middle))}
+
+        plot_df = pd.DataFrame(values)
+        fig, ax = plt.subplots()
+        plot_df.plot(kind='line', ax=ax)
+        fig.savefig(measure + '_threshold_plot_kathrin.png')
+
+    def define_meanrr_thresholds(self):
+        pass
+
+    def define_prr20_thresholds(self):
+        pass
+
 
 if __name__ == '__main__':
     evaluate = ThresholdsEval()
-    evaluate.test_detect_movement('../../../../../test_data/Kathrin_stresstest_2020-07-10/ACC.csv')
+    measure = 'EDA'
+    base_path = '../../../../../test_data/typing/' + measure + '.csv'
+    data_path_stress = '../../../../../test_data/Kathrin_stresstest_2020-07-10/' + measure + '.csv'
+    data_path_calm = '../../../../../test_data/too_relaxed/' + measure + '.csv'
+    evaluate.define_eda_thresholds(measure, baseline_path=base_path, data_calm=data_path_calm, data_stressed=data_path_stress)
 
 
