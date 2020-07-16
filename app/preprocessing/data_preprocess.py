@@ -127,5 +127,5 @@ class DataCleaning(object):
         prr20_change = self.detect_change(self.prev_mean_prr20, threshold=0.0)
         prr20_stress = self.validate_stress_level(data, self.prev_mean_prr20, self.prev_prr20_stress,
                                                   prr20_change, self.settings.prr_threshold)
-
+        self.prev_prr20_stress.append(prr20_stress)
         return self.majority_vote(mean_rr_stress, eda_stress, prr20_stress)
