@@ -1,5 +1,5 @@
 from unittest import TestCase
-from app.tests.preprocessing.dummy_data import Settings
+from app.tests.preprocessing.dummy_data import Settings, Data
 from app.preprocessing.data_preprocess import DataCleaning
 
 
@@ -50,4 +50,88 @@ class PreprocessingTest(TestCase):
             self.data_clean.prev_ibi.append(i)
         self.assertEqual(50, self.data_clean.compute_prr20())
 
+    def test_process_acc_first_run(self):
+        acc_values = [{'x': 0, 'y': 0, 'z': 0},
+                      {'x': 0, 'y': 0, 'z': 0},
+                      {'x': 1, 'y': 7, 'z': 50}]
+        self.data_clean.process_acc(acc_values)
+        self.assertEqual([0, 0, 0, 50], list(self.data_clean.summarized_accs))
+        self.assertEqual([0, 0, 1.25], list(self.data_clean.prev_cumulated_acc))
 
+    def test_process_acc_constant_move(self):
+        acc_values = [{'x': 1, 'y': 7, 'z': 50},
+                      {'x': 1, 'y': 7, 'z': 50},
+                      {'x': 1, 'y': 7, 'z': 50},
+                      {'x': 1, 'y': 7, 'z': 50},
+                      {'x': 1, 'y': 7, 'z': 50},
+                      {'x': 1, 'y': 7, 'z': 50},
+                      {'x': 1, 'y': 7, 'z': 50}
+                      ]
+
+        self.data_clean.process_acc(acc_values)
+        self.assertEqual([0, 0, 0, 0, 0, 0], list(self.data_clean.summarized_accs))
+        self.assertAlmostEqual(5.601, self.data_clean.prev_cumulated_acc[0], places=3)
+        self.assertAlmostEqual(5.8743, self.data_clean.prev_cumulated_acc[1], places=3)
+        self.assertAlmostEqual(5.2868, self.data_clean.prev_cumulated_acc[2], places=3)
+
+    def test_preprocess_acc_move(self):
+        acc_values = [{'x': 1, 'y': 7, 'z': 50},
+                      {'x': 3, 'y': 4, 'z': 20},
+                      {'x': -1, 'y': 2, 'z': 10},
+                      {'x': 5, 'y': -3, 'z': 24},
+                      {'x': 12, 'y': 12, 'z': 12},
+                      {'x': 14, 'y': 5, 'z': 23},
+                      {'x': -5, 'y': 3, 'z': 30}]
+        self.data_clean.process_acc(acc_values)
+        self.assertEqual([30, 10, 14, 15, 11, 19], list(self.data_clean.summarized_accs))
+        self.assertAlmostEqual(9.262, self.data_clean.prev_cumulated_acc[0], places=3)
+        self.assertAlmostEqual(10.5025, self.data_clean.prev_cumulated_acc[1], places=3)
+        self.assertAlmostEqual(11.10228, self.data_clean.prev_cumulated_acc[2], places=3)
+
+    def test_detect_movement_false(self):
+        acc_values = [{'x': 1, 'y': 1, 'z': 1},
+                      {'x': 1, 'y': 2, 'z': 1},
+                      {'x': 0, 'y': 1, 'z': 2},
+                      {'x': -1, 'y': 0, 'z': 1}
+                      ]
+        self.assertFalse(self.data_clean.detect_movement(acc_values))
+
+    def test_detect_movement_true(self):
+        acc_values = [{'x': 1, 'y': 1, 'z': 10},
+                      {'x': 1, 'y': 2, 'z': 10},
+                      {'x': 0, 'y': 1, 'z': 20},
+                      {'x': -1, 'y': 0, 'z': 10}
+                      ]
+        self.assertTrue(self.data_clean.detect_movement(acc_values))
+
+    def test_validate_stress_first_iteration(self):
+        data = Data(movement=False)
+        self.assertEqual(1, self.data_clean.validate_stress_level(data,
+                                                                  self.data_clean.prev_eda_tend,
+                                                                  self.data_clean.prev_eda_stress,
+                                                                  stress_threshold=self.data_clean.settings.stress_threshold,
+                                                                  change=True))
+
+    def test_validate_high_stress(self):
+        data = Data(movement=False)
+        prev_eda_values = [6, 12, 24]
+        for i in prev_eda_values:
+            self.data_clean.prev_eda_tend.append(i)
+
+        self.assertEqual(2, self.data_clean.validate_stress_level(data,
+                                                                  self.data_clean.prev_eda_tend,
+                                                                  self.data_clean.prev_eda_stress,
+                                                                  stress_threshold=self.data_clean.settings.stress_threshold,
+                                                                  change=True))
+
+    def test_validate_low_stress(self):
+        data = Data(movement=False)
+        prev_eda_values = [0.2, -0.11, -0.8]
+        for i in prev_eda_values:
+            self.data_clean.prev_eda_tend.append(i)
+
+        self.assertEqual(0, self.data_clean.validate_stress_level(data,
+                                                                  self.data_clean.prev_eda_tend,
+                                                                  self.data_clean.prev_eda_stress,
+                                                                  stress_threshold=self.data_clean.settings.stress_threshold,
+                                                                  change=True))
