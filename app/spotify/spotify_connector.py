@@ -28,7 +28,6 @@ def get_left_playtime(db: Session, spotify_username: str) -> int:
         token = cred.refresh_user_token(spotify_data.refresh_token)
         with spotify.token_as(token):
             current = spotify.playback_currently_playing()
-            print(current)
             if current:
                 return current.item.duration_ms - current.progress_ms
             else:

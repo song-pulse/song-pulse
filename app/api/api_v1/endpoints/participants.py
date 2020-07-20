@@ -3,8 +3,6 @@ from typing import List
 
 from fastapi import APIRouter, Depends, status, HTTPException, Cookie
 from sqlalchemy.orm import Session
-from starlette.responses import RedirectResponse
-from starlette.status import HTTP_303_SEE_OTHER
 
 from app import crud
 from app.api import deps
@@ -17,7 +15,7 @@ from app.schemas.result import Result, ResultUpdate
 from app.schemas.run import Run, RunCreate
 from app.schemas.timestamp_values import TimestampValues
 from app.schemas.value import Value, ValueCreate
-from app.util.spotify_connector import add_songs_for_playlist
+from app.spotify.spotify_connector import add_songs_for_playlist
 
 router = APIRouter()
 

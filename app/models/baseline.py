@@ -12,5 +12,7 @@ class Baseline(Base):
     participant_id = Column(Integer, ForeignKey("participant.id"))
     baseline = Column(Float)
     counter = Column(Integer)
+    max_value = Column(Float)
+    min_value = Column(Float)
 
     sensor = relationship("Sensor")

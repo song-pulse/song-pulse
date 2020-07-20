@@ -3,13 +3,11 @@ from app.schemas.participant import ParticipantCreate
 from app.schemas.playlist import PlaylistCreate
 from app.schemas.sensor import SensorCreate
 from app.schemas.setting import SettingCreate
-from app.schemas.song import SongCreate
-
 
 # make sure all SQL Alchemy models are imported before initializing DB
 # otherwise, SQL Alchemy might fail to initialize relationships properly
 # for more details: https://github.com/tiangolo/full-stack-fastapi-postgresql/issues/28
-from app.util.spotify_connector import add_songs_for_playlist
+from app.spotify.spotify_connector import add_songs_for_playlist
 
 
 def init_db(db_session):

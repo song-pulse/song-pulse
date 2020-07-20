@@ -21,10 +21,10 @@ class CRUDValue(CRUDBase[Value, ValueCreate, ValueUpdate]):
     def get_all_for_file(self, db_session: Session, file_id: int) -> Value:
         return db_session.query(self.model).filter(self.model.file_id == file_id).all()
 
-    def get_prev_two(self, db_session: Session, file_id: int, timestamp: int) -> List[Value]:
+    def get_prev(self, db_session: Session, file_id: int, timestamp: int, limit: int = 2) -> List[Value]:
         return db_session.query(self.model).filter(self.model.file_id == file_id) \
             .filter(self.model.timestamp < timestamp) \
-            .order_by(self.model.timestamp.desc()).limit(2).all()
+            .order_by(self.model.timestamp.desc()).limit(limit).all()
 
 
 value = CRUDValue(Value)

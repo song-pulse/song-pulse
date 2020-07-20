@@ -11,8 +11,8 @@ class Result(Base):
     run_id = Column(Integer, ForeignKey("run.id"))
     timestamp = Column(BigInteger)
     song_id = Column(Integer, ForeignKey("song.id"))
-    verdict = Column(Integer)
-    input = Column(String)
+    verdict = Column(Integer)  # TODO delete
+    input = Column(String)  # TODO delete
     action = Column(Integer)
     song_queued = Column(Boolean)
     song_plays_until = Column(DateTime)

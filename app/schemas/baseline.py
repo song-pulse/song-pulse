@@ -8,6 +8,8 @@ class BaselineBase(BaseModel):
     participant_id: int
     baseline: float = 0.0
     counter: int = 0
+    max_value: float = 0.0
+    min_value: float = 0.0
 
 
 class BaselineCreate(BaselineBase):

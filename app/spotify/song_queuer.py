@@ -8,7 +8,7 @@ from app.models.result import Result
 from app.models.song import Song
 from app.preprocessing.data_for_time import DataForTime
 from app.schemas.result import ResultCreate
-from app.util.spotify_connector import get_left_playtime, queue_song
+from app.spotify.spotify_connector import get_left_playtime, queue_song
 
 
 def queue_song_if_needed(db_session: Session, data: DataForTime, action: int, part_id: int, run_id: int,
@@ -48,7 +48,7 @@ def should_queue_song(db_session: Session, run_id: int, action: int) -> bool:
     last_queued_result = crud.result.get_last_queued(db_session, run_id)
     # only if the last song we queued is about to end!
     if not last_queued_result or datetime.now() + timedelta(seconds=20) >= last_queued_result.song_plays_until:
-        prev_results = crud.result.get_prev(db_session, run_id, 12)  # a result every 10sec -> look at the last 2min
+        prev_results = crud.result.get_prev(db_session, run_id, 6)  # a result every 10sec -> look at the last 1min
         return action_majority(prev_results, action)
     return False
 

@@ -18,13 +18,13 @@ class DataForTime:
         self.runId: int = 0
 
         self.edaValue: float = 0
-        self.ibiValue: float = 0
+        self.ibiValues: [float] = [0.0, 0.0, 0.0]
         self.tempValue: float = 0
         self.accValues = [{"x": 0, "y": 0, "z": 0}, {"x": 0, "y": 0, "z": 0}, {"x": 0, "y": 0, "z": 0}]
 
     def __str__(self):
         return str(self.timestamp) + \
                ", EDA: " + str(self.edaValue) + \
-               ", IBI: " + str(self.ibiValue) + \
+               ", IBI: " + str(self.ibiValues) + \
                ", TEMP: " + str(self.tempValue) + \
                ", ACC: " + str(self.accValues)

@@ -1,7 +1,7 @@
 from app import crud
 from app.preprocessing.data_for_time import DataForTime
 from app.preprocessing.learning_wrapper import LearningWrapper
-from app.util.song_queuer import queue_song_if_needed
+from app.spotify.song_queuer import queue_song_if_needed
 
 
 class Stream:
