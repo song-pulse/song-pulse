@@ -7,14 +7,15 @@ from app.schemas.baseline import BaselineUpdate, BaselineCreate
 
 def createBaselineUpdate(baseline: Baseline, new_min_max: float, min_changed: bool, max_changed: bool):
     if min_changed:
-        new_min_max = (new_min_max + baseline.min_value) / 2
+        new_min_max = (new_min_max + (baseline.min_value * baseline.counter)) / (baseline.counter + 1)
+        # the longer the session the less change we want to see in the min max values
         return BaselineUpdate(participant_id=baseline.participant_id,
                               sensor_id=baseline.sensor_id,
                               counter=baseline.counter + 1,
                               min_value=new_min_max
                               )
     if max_changed:
-        new_min_max = (new_min_max + baseline.max_value) / 2
+        new_min_max = (new_min_max + (baseline.max_value * baseline.counter)) / (baseline.counter + 1)
         return BaselineUpdate(participant_id=baseline.participant_id,
                               sensor_id=baseline.sensor_id,
                               counter=baseline.counter + 1,
@@ -53,12 +54,11 @@ def createNewBaselines(db_session: Session, part_id: int):
 
 
 def update_baseline_if_needed(baseline, db_session, prr_20_value):
-    if baseline.counter < 30:  # after about 5 minutes of calibration we're fixed
-        max_changed, min_changed = checkMinMaxChange(baseline.min_value, baseline.max_value, prr_20_value)
-        if max_changed or min_changed:
-            crud.baseline.update(db_session=db_session,
-                                 db_obj=baseline,
-                                 obj_in=createBaselineUpdate(baseline, prr_20_value, max_changed, min_changed))
+    max_changed, min_changed = checkMinMaxChange(baseline.min_value, baseline.max_value, prr_20_value)
+    if max_changed or min_changed:
+        crud.baseline.update(db_session=db_session,
+                             db_obj=baseline,
+                             obj_in=createBaselineUpdate(baseline, prr_20_value, max_changed, min_changed))
 
 
 class MinMaxDetector:
