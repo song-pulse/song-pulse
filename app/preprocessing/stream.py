@@ -67,10 +67,19 @@ class Stream:
             if bvpValue.timestamp == value.timestamp:
                 data_for_time.bvpValue = bvpValue.value1
 
-        # Iterate over the ibi values and add the value at the given time stamp.
+        # The intervals are the data points for the ibi before the time stamp.
+        # They are later needed for the data cleaning.
+        ibi1 = 0.0
+        ibi2 = 0.0
+        # Iterate over the ibi values and add the value at the given time stamp plus of two intervals from before.
         for ibiValue in ibi_data:
             if ibiValue.timestamp == value.timestamp:
-                data_for_time.bvpValue = ibiValue.value1
+                data_for_time.ibiValues[0] = ibi1
+                data_for_time.ibiValues[1] = ibi2
+                data_for_time.ibiValues[2] = ibiValue.value1
+            else:
+                ibi1 = ibi2
+                ibi2 = ibiValue.value1
 
         # The intervals are the data points for the acc before the time stamp.
         # They are later needed for the data cleaning.
