@@ -9,7 +9,16 @@ from app.preprocessing.min_max_detector import MinMaxDetector
 def compute_prr20(ibi_values):
     if len(ibi_values) <= 1:
         return 0
-    return ((len([i for i in ibi_values if (i * 1000) >= 20])) * 100) / float(len(ibi_values) - 1)
+
+    prev_value = None
+    counter = 0
+    for val in ibi_values:
+        if prev_value:
+            if (abs(val - prev_value)) * 1000 > 20:
+                counter += 1
+        prev_value = val
+
+    return counter * 100 / float(len(ibi_values) - 1)
 
 
 def compute_mean_rr(ibi_values):

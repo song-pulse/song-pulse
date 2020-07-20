@@ -17,9 +17,9 @@ class DataForTime:
         self.timestamp: int = 0
         self.runId: int = 0
 
-        self.edaValue: float = 0
-        self.ibiValues: [float] = [0.0, 0.0, 0.0]
-        self.tempValue: float = 0
+        self.edaValue: float = 0.0
+        self.ibiValues: [float] = []
+        self.tempValue: float = 0.0
         self.accValues = [{"x": 0, "y": 0, "z": 0}, {"x": 0, "y": 0, "z": 0}, {"x": 0, "y": 0, "z": 0}]
 
     def __str__(self):

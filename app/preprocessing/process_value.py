@@ -37,11 +37,10 @@ class ProcessValue:
         data.accValues[2] = {"x": values.acc_x, "y": values.acc_y, "z": values.acc_z}
 
         historic_ibi = ProcessValue.get_historic_ibi(db_session, values.timestamp, rec_id)
-        if len(historic_ibi) > 0:
-            data.ibiValues[1] = historic_ibi[0].value1
-        if len(historic_ibi) > 1:
-            data.ibiValues[0] = historic_ibi[1].value1
-        data.ibiValues[2] = values.ibi
+        historic_ibi.reverse()
+        for ibi in historic_ibi:
+            data.ibiValues.append(ibi.value1)
+        data.ibiValues.append(values.ibi)
         return data
 
     @staticmethod
@@ -52,4 +51,4 @@ class ProcessValue:
     @staticmethod
     def get_historic_ibi(db_session: Session, timestamp: int, rec_id: int) -> List[Value]:
         file_id = crud.file.get_id_for_recording_and_name(db_session, rec_id, "IBI")
-        return crud.value.get_prev(db_session, file_id, timestamp, 2)
+        return crud.value.get_prev(db_session, file_id, timestamp, 6)
