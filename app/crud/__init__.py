@@ -11,3 +11,4 @@ from .crud_setting import setting
 from .crud_song import song
 from .crud_spotify import spotify
 from .crud_value import value
+from .crud_tendency import tendency

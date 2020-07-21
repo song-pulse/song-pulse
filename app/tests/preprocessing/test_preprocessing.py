@@ -1,6 +1,6 @@
 from unittest import TestCase
 from app.tests.preprocessing.dummy_data import Settings, Data
-from app.preprocessing.data_preprocess import DataCleaning
+from app.preprocessing.unused.data_preprocess import DataCleaning
 
 
 class PreprocessingTest(TestCase):
