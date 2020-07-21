@@ -1,14 +1,14 @@
 from app import crud
+from app.api import deps
 from app.preprocessing.data_for_time import DataForTime
-from app.preprocessing.learning_wrapper import LearningWrapper
-from app.spotify.song_queuer import queue_song_if_needed
+from app.preprocessing.data_preprocess_perecentile import StressChecker
+from app.spotify.song_queuer import is_queue_finished, queue
 
 
 class Stream:
 
     @staticmethod
     def start(part_id, rec_id, run_id, spotify_username):
-        learning = LearningWrapper()
         # The values for the different sensors are being stored in those lists.
         eda_data = []
         ibi_data = []
@@ -16,7 +16,8 @@ class Stream:
         temp_data = []
         bvp_data = []
 
-        db_session = learning.get_db_session()
+        db_session = next(deps.get_db())
+        checker = StressChecker(db_settings=crud.setting.get(db_session), db_session=db_session)
         # Get the files from the recording.
         files = crud.file.get_multi_for_recording(db_session, recording_id=rec_id)
 
@@ -45,9 +46,10 @@ class Stream:
         for value in eda_data:
             data_for_time_object = Stream.create_data_for_time_object(value, acc_data, bvp_data, eda_data, ibi_data,
                                                                       run_id, temp_data)
-            action = learning.run(data_for_time_object, part_id)
-            result = queue_song_if_needed(db_session, data_for_time_object, action, part_id, run_id, spotify_username)
-            crud.result.create_with_run(db_session=db_session, obj_in=result, run_id=run_id)
+            action = checker.run(data_for_time_object, part_id)
+            if is_queue_finished(db_session, run_id):
+                result = queue(db_session, data_for_time_object, action, part_id, spotify_username)
+                crud.result.create_with_run(db_session=db_session, obj_in=result, run_id=run_id)
 
     # This methods creates a data object for a given time stamp.
     # This object can then be given to the data cleaning for processing the data.

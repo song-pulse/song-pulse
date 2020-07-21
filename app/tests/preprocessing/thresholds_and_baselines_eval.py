@@ -1,4 +1,4 @@
-from app.preprocessing.data_preprocess import DataCleaning
+from app.preprocessing.unused.data_preprocess import DataCleaning
 from app.tests.preprocessing.dummy_data import Settings
 import pandas as pd
 import numpy as np

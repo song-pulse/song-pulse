@@ -49,7 +49,7 @@ class BaselineCalculator:
                                      db_obj=baseline,
                                      obj_in=createBaselineUpdate(baseline, eda_baseline))
             elif baseline.sensor.name == "IBI":
-                ibi_baseline = calculateBaseline(baseline.baseline, baseline.counter, data.ibiValue)
+                ibi_baseline = calculateBaseline(baseline.baseline, baseline.counter, data.ibiValues[-1])
                 crud.baseline.update(db_session=db_session,
                                      db_obj=baseline,
                                      obj_in=createBaselineUpdate(baseline, ibi_baseline))

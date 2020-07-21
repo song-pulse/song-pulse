@@ -14,3 +14,5 @@ from ..models.baseline import Baseline  # noqa
 from ..models.setting import Setting  # noqa
 from ..models.qtable import QTable  # noqa
 from ..models.spotify import Spotify # noqa
+from ..models.tendency import Tendency # noqa
+from ..models.range import Range # noqa

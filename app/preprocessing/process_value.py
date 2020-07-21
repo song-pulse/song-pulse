@@ -3,24 +3,26 @@ from typing import List
 from sqlalchemy.orm import Session
 
 from app import crud
+from app.api import deps
 from app.models.value import Value
 from app.preprocessing.data_for_time import DataForTime
-from app.preprocessing.learning_wrapper import LearningWrapper
+from app.preprocessing.data_preprocess_perecentile import StressChecker
 from app.schemas.timestamp_values import TimestampValues
-from app.spotify.song_queuer import queue_song_if_needed
+from app.spotify.song_queuer import queue
 
 
 class ProcessValue:
 
     @staticmethod
     def single_value(part_id: int, rec_id: int, run_id: int, values: TimestampValues, spotify_username: str):
-        learning = LearningWrapper()
-        db_session = learning.get_db_session()
-
+        db_session = next(deps.get_db())
+        checker = StressChecker(db_settings=crud.setting.get(db_session), db_session=db_session)
         data = ProcessValue.convert_to_data_for_time(db_session, values, rec_id, run_id)
-        action = learning.run(data, part_id)
-        result = queue_song_if_needed(db_session, data, action, part_id, run_id, spotify_username)
-        crud.result.create_with_run(db_session=db_session, obj_in=result, run_id=run_id)
+
+        action = checker.run(data, part_id)
+        if action:
+            result = queue(db_session, data, action, part_id, spotify_username)
+            crud.result.create_with_run(db_session=db_session, obj_in=result, run_id=run_id)
 
     @staticmethod
     def convert_to_data_for_time(db_session: Session, values: TimestampValues, rec_id: int, run_id: int) -> DataForTime:
