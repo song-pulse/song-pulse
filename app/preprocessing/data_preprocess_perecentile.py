@@ -61,7 +61,7 @@ class StressChecker(object):
         eda_tendency, mean_rr_tendency, prr_20_tendency = self.detector.detect(db_session=self.db_session,
                                                                                eda_value=data.edaValue,
                                                                                mean_rr_value=mean_rr,
-                                                                               prr_20_value=prr_20, part_id=part_id)
+                                                                               prr_20_value=prr_20, run_id=data.runId)
         crud.tendency.create_with_run(db_session=self.db_session,
                                       obj_in=TendencyCreate(timestamp=data.timestamp,
                                                             eda=eda_tendency,
