@@ -1,9 +1,7 @@
 from sqlalchemy.orm import Session
 
 from app import crud
-from app.models.baseline import Baseline
 from app.models.range import Range
-from app.schemas.baseline import BaselineUpdate, BaselineCreate
 from app.schemas.range import RangeUpdate, RangeCreate
 
 
@@ -31,7 +29,7 @@ def checkMinMaxChange(min_value: float, max_value: float, current_value: float):
     return False, False
 
 
-def checkMinMax(min_value: float, max_value: float, current_value: float):
+def checkMinMaxEDA(min_value: float, max_value: float, current_value: float):
     total_range = max_value - min_value
     percentile10 = total_range / 10  # 10% from bottom
     percentile2 = total_range / 50  # 2% from top
@@ -42,6 +40,20 @@ def checkMinMax(min_value: float, max_value: float, current_value: float):
         return 0
     if current_value >= top:
         return 2
+    else:
+        return 1
+
+
+def checkMinMaxRR(min_value: float, max_value: float, current_value: float):
+    total_range = max_value - min_value
+    percentile10 = total_range / 10  # 10% from top
+    top = max_value - percentile10
+    bottom = min_value + percentile10
+
+    if current_value <= bottom:
+        return 2
+    if current_value >= top:
+        return 0
     else:
         return 1
 
@@ -76,13 +88,13 @@ class MinMaxDetector:
 
         for range in ranges:
             if range.name == range_names[0]:
-                eda_tendency = checkMinMax(range.min, range.max, eda_value)
+                eda_tendency = checkMinMaxEDA(range.min, range.max, eda_value)
                 update_range_if_needed(range, db_session, eda_value)
             if range.name == range_names[1]:
-                mean_rr_tendency = checkMinMax(range.min, range.max, mean_rr_value)
+                mean_rr_tendency = checkMinMaxRR(range.min, range.max, mean_rr_value)
                 update_range_if_needed(range, db_session, mean_rr_value)
             elif range.name == range_names[2]:
-                prr_20_tendency = checkMinMax(range.min, range.max, prr_20_value)
+                prr_20_tendency = checkMinMaxRR(range.min, range.max, prr_20_value)
                 update_range_if_needed(range, db_session, prr_20_value)
 
         return eda_tendency, mean_rr_tendency, prr_20_tendency
