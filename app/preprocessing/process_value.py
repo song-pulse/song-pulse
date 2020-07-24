@@ -19,8 +19,8 @@ class ProcessValue:
         checker = StressChecker(db_settings=crud.setting.get(db_session), db_session=db_session)
         data = ProcessValue.convert_to_data_for_time(db_session, values, rec_id, run_id)
 
-        action = checker.run(data, part_id)
-        if action:
+        action = checker.run(data)
+        if action is not None:
             result = queue(db_session, data, action, part_id, spotify_username)
             crud.result.create_with_run(db_session=db_session, obj_in=result, run_id=run_id)
 
@@ -38,11 +38,15 @@ class ProcessValue:
             data.accValues[0] = {"x": historic_acc[1].value1, "y": historic_acc[1].value2, "z": historic_acc[1].value3}
         data.accValues[2] = {"x": values.acc_x, "y": values.acc_y, "z": values.acc_z}
 
+        historic_eda = ProcessValue.get_historic_eda(db_session, values.timestamp, rec_id)
+        historic_eda.reverse()
+        for eda in historic_eda:
+            data.edaValues.append(eda.value1)  # contains the current value already
+
         historic_ibi = ProcessValue.get_historic_ibi(db_session, values.timestamp, rec_id)
         historic_ibi.reverse()
         for ibi in historic_ibi:
-            data.ibiValues.append(ibi.value1)
-        data.ibiValues.append(values.ibi)
+            data.ibiValues.append(ibi.value1)  # contains the current value already
         return data
 
     @staticmethod
@@ -53,4 +57,9 @@ class ProcessValue:
     @staticmethod
     def get_historic_ibi(db_session: Session, timestamp: int, rec_id: int) -> List[Value]:
         file_id = crud.file.get_id_for_recording_and_name(db_session, rec_id, "IBI")
-        return crud.value.get_prev(db_session, file_id, timestamp, 6)
+        return crud.value.get_prev(db_session, file_id, timestamp, 18)
+
+    @staticmethod
+    def get_historic_eda(db_session: Session, timestamp: int, rec_id: int) -> List[Value]:
+        file_id = crud.file.get_id_for_recording_and_name(db_session, rec_id, "EDA")
+        return crud.value.get_prev(db_session, file_id, timestamp, 18)

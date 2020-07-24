@@ -7,24 +7,30 @@ from app.schemas.range import RangeUpdate, RangeCreate
 
 def createRangeUpdate(range: Range, new_min_max: float, min_changed: bool, max_changed: bool):
     if min_changed:
-        new_min_max = (new_min_max + (range.min * range.counter)) / (range.counter + 1)
         # the longer the session the less change we want to see in the min max values
         return RangeUpdate(name=range.name,
-                           counter=range.counter + 1,
-                           min_value=new_min_max
+                           counter_min=range.counter_min + 1,
+                           min=new_min_max
                            )
     if max_changed:
-        new_min_max = (new_min_max + (range.max * range.counter)) / (range.counter + 1)
-        return RangeUpdate(name=range.name,
-                           counter=range.counter + 1,
-                           max_value=new_min_max
-                           )
+        if range.counter_max == 0:
+            return RangeUpdate(name=range.name,
+                               counter_max=range.counter_max + 1,
+                               counter_min=range.counter_min + 1,
+                               max=new_min_max,
+                               min=new_min_max
+                               )
+        else:
+            return RangeUpdate(name=range.name,
+                               counter_max=range.counter_max + 1,
+                               max=new_min_max,
+                               )
 
 
 def checkMinMaxChange(min_value: float, max_value: float, current_value: float):
-    if min_value < current_value:
+    if current_value < min_value:
         return False, True
-    if max_value > current_value:
+    if current_value > max_value:
         return True, False
     return False, False
 
@@ -32,7 +38,7 @@ def checkMinMaxChange(min_value: float, max_value: float, current_value: float):
 def checkMinMaxEDA(min_value: float, max_value: float, current_value: float):
     total_range = max_value - min_value
     percentile10 = total_range / 10  # 10% from bottom
-    percentile2 = total_range / 50  # 2% from top
+    percentile2 = total_range / 100  # 1% from top
     top = max_value - percentile2
     bottom = min_value + percentile10
 
@@ -47,8 +53,9 @@ def checkMinMaxEDA(min_value: float, max_value: float, current_value: float):
 def checkMinMaxRR(min_value: float, max_value: float, current_value: float):
     total_range = max_value - min_value
     percentile10 = total_range / 10  # 10% from top
+    percentile2 = total_range / 100  # 1% from bottom
     top = max_value - percentile10
-    bottom = min_value + percentile10
+    bottom = min_value + percentile2
 
     if current_value <= bottom:
         return 2
@@ -69,7 +76,7 @@ def update_range_if_needed(range: Range, db_session: Session, current_value: flo
     if max_changed or min_changed:
         crud.range.update(db_session=db_session,
                           db_obj=range,
-                          obj_in=createRangeUpdate(range, current_value, max_changed, min_changed))
+                          obj_in=createRangeUpdate(range, current_value, min_changed, max_changed))
 
 
 class MinMaxDetector:

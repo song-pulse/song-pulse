@@ -18,6 +18,7 @@ class DataForTime:
         self.runId: int = 0
 
         self.edaValue: float = 0.0
+        self.edaValues: [float] = []
         self.ibiValues: [float] = []
         self.tempValue: float = 0.0
         self.accValues = [{"x": 0, "y": 0, "z": 0}, {"x": 0, "y": 0, "z": 0}, {"x": 0, "y": 0, "z": 0}]
