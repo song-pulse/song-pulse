@@ -5,7 +5,8 @@ class RangeBase(BaseModel):
     name: str
     min: float = 0.0
     max: float = 0.0
-    counter: int = 0
+    counter_min: int = 0
+    counter_max: int = 0
 
 
 class RangeCreate(RangeBase):

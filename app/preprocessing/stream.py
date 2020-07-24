@@ -46,7 +46,7 @@ class Stream:
         for value in eda_data:
             data_for_time_object = Stream.create_data_for_time_object(value, acc_data, bvp_data, eda_data, ibi_data,
                                                                       run_id, temp_data)
-            action = checker.run(data_for_time_object, part_id)
+            action = checker.run(data_for_time_object)
             if is_queue_finished(db_session, run_id):
                 result = queue(db_session, data_for_time_object, action, part_id, spotify_username)
                 crud.result.create_with_run(db_session=db_session, obj_in=result, run_id=run_id)

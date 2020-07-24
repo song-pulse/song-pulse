@@ -11,4 +11,5 @@ class Range(Base):
     name = Column(String)
     min = Column(Float)
     max = Column(Float)
-    counter = Column(Integer)
+    counter_min = Column(Integer)
+    counter_max = Column(Integer)
