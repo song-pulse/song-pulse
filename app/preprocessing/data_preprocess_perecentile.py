@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from app import crud
 from app.preprocessing.data_for_time import DataForTime
 from app.preprocessing.min_max_detector import MinMaxDetector
+from app.preprocessing.stress_validation import detect_movement
 from app.schemas.tendency import TendencyCreate
 from app.spotify.song_queuer import is_queue_finished
 
@@ -58,6 +59,9 @@ class StressChecker(object):
 
         # EDA
         mean_eda = compute_mean_eda(data.edaValues)
+
+        if detect_movement(acc_values=data.accValues, acc_threshold=self.settings.acc_threshold):
+            return None
 
         # MeanRR
         mean_rr = compute_mean_rr(data.ibiValues)
