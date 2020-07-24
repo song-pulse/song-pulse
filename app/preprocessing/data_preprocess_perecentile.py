@@ -5,7 +5,6 @@ from sqlalchemy.orm import Session
 from app import crud
 from app.preprocessing.data_for_time import DataForTime
 from app.preprocessing.min_max_detector import MinMaxDetector
-from app.preprocessing.stress_validation import detect_movement
 from app.schemas.tendency import TendencyCreate
 from app.spotify.song_queuer import is_queue_finished
 
@@ -49,9 +48,6 @@ class StressChecker(object):
 
     def run(self, data: DataForTime, part_id: int):
         if 0.0 in data.ibiValues:  # not enough values to determine anything, so we'll just assume balance.
-            return None
-
-        if detect_movement(acc_values=data.accValues, acc_threshold=self.settings.acc_threshold):
             return None
 
         # MeanRR

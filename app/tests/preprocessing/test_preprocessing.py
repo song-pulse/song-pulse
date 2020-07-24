@@ -1,7 +1,6 @@
 from unittest import TestCase
 from app.tests.preprocessing.dummy_data import Settings, Data
 from app.preprocessing.unused.data_preprocess import DataCleaning
-from app.preprocessing.stress_validation import process_acc, detect_movement
 
 
 class PreprocessingTest(TestCase):
@@ -55,8 +54,9 @@ class PreprocessingTest(TestCase):
         acc_values = [{'x': 0, 'y': 0, 'z': 0},
                       {'x': 0, 'y': 0, 'z': 0},
                       {'x': 1, 'y': 7, 'z': 50}]
-        cumulated_acc = process_acc(acc_values)
-        self.assertEqual([0.0, 0.0, 0.0, 1.666666666666667], cumulated_acc)
+        self.data_clean.process_acc(acc_values)
+        self.assertEqual([0, 0, 0, 50], list(self.data_clean.summarized_accs))
+        self.assertEqual([0, 0, 1.25], list(self.data_clean.prev_cumulated_acc))
 
     def test_process_acc_constant_move(self):
         acc_values = [{'x': 1, 'y': 7, 'z': 50},
@@ -68,8 +68,11 @@ class PreprocessingTest(TestCase):
                       {'x': 1, 'y': 7, 'z': 50}
                       ]
 
-        cumulated_acc = process_acc(acc_values)
-        self.assertEqual([0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], cumulated_acc)
+        self.data_clean.process_acc(acc_values)
+        self.assertEqual([0, 0, 0, 0, 0, 0], list(self.data_clean.summarized_accs))
+        self.assertAlmostEqual(5.601, self.data_clean.prev_cumulated_acc[0], places=3)
+        self.assertAlmostEqual(5.8743, self.data_clean.prev_cumulated_acc[1], places=3)
+        self.assertAlmostEqual(5.2868, self.data_clean.prev_cumulated_acc[2], places=3)
 
     def test_preprocess_acc_move(self):
         acc_values = [{'x': 1, 'y': 7, 'z': 50},
@@ -79,11 +82,11 @@ class PreprocessingTest(TestCase):
                       {'x': 12, 'y': 12, 'z': 12},
                       {'x': 14, 'y': 5, 'z': 23},
                       {'x': -5, 'y': 3, 'z': 30}]
-        cumulated_acc = process_acc(acc_values)
-        print('cumulated acc')
-        print(cumulated_acc)
-        self.assertEqual([0.0, 0.0, 1.5, 2.6833333333333336, 3.7650000000000006,
-                          4.7685, 5.624983333333335, 6.476770714285716], cumulated_acc)
+        self.data_clean.process_acc(acc_values)
+        self.assertEqual([30, 10, 14, 15, 11, 19], list(self.data_clean.summarized_accs))
+        self.assertAlmostEqual(9.262, self.data_clean.prev_cumulated_acc[0], places=3)
+        self.assertAlmostEqual(10.5025, self.data_clean.prev_cumulated_acc[1], places=3)
+        self.assertAlmostEqual(11.10228, self.data_clean.prev_cumulated_acc[2], places=3)
 
     def test_detect_movement_false(self):
         acc_values = [{'x': 1, 'y': 1, 'z': 1},
@@ -91,7 +94,7 @@ class PreprocessingTest(TestCase):
                       {'x': 0, 'y': 1, 'z': 2},
                       {'x': -1, 'y': 0, 'z': 1}
                       ]
-        self.assertFalse(detect_movement(acc_values, self.settings.acc_threshold))
+        self.assertFalse(self.data_clean.detect_movement(acc_values))
 
     def test_detect_movement_true(self):
         acc_values = [{'x': 1, 'y': 1, 'z': 10},
@@ -99,7 +102,7 @@ class PreprocessingTest(TestCase):
                       {'x': 0, 'y': 1, 'z': 20},
                       {'x': -1, 'y': 0, 'z': 10}
                       ]
-        self.assertTrue(detect_movement(acc_values, self.settings.acc_threshold))
+        self.assertTrue(self.data_clean.detect_movement(acc_values))
 
     def test_validate_stress_first_iteration(self):
         data = Data(movement=False)

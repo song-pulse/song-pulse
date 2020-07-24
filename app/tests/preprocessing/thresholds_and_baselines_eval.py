@@ -92,65 +92,12 @@ class ThresholdsEval:
         values = {'stressed': cutoff_stressed.values[:, 0],
                   'relaxed': cutoff_calm.values[:, 0],
                   'normal': cutoff_middle.values[:, 0],
-                  # 'upper threshold': [self.settings.eda_threshold] * len(cutoff_middle),
-                  # 'lower threshold': [self.settings.eda_threshold * -1] * (len(cutoff_middle))
-                  }
+                  'upper threshold': [self.settings.eda_threshold] * len(cutoff_middle),
+                  'lower threshold': [self.settings.eda_threshold * -1] * (len(cutoff_middle))}
 
         plot_df = pd.DataFrame(values)
         fig, ax = plt.subplots()
         plot_df.plot(kind='line', ax=ax)
-        fig.savefig(measure + '_threshold_plot_alina.png')
-
-    def load_ibi_data(self, baseline_path, ibi_path_calm, ibi_path_stressed):
-        values_middle = pd.read_csv(baseline_path)
-        values_calm = pd.read_csv(ibi_path_calm)
-        values_stressed = pd.read_csv(ibi_path_stressed)
-        normal = self.get_10_secs_intervals(values_middle)
-        calm = self.get_10_secs_intervals(values_calm)
-        stressed = self.get_10_secs_intervals(values_stressed)
-
-        return normal, calm, stressed
-
-    def get_10_secs_intervals(self, ibi_df):
-        ibi_data = []
-        time_passed = 0
-        intervals = 0
-        for interval in ibi_df.iterrows():
-            print('time passed:', time_passed)
-            print('interval:', interval[1][0])
-            if interval[1][0] - time_passed >= 10:
-                intervals += 1
-                print('interval found', intervals)
-                ibi_data.append(interval[1][1])
-                time_passed = interval[1][0]
-        return ibi_data
-
-    def define_meanrr_thresholds(self, baseline_path, ibi_path_calm, ibi_path_stressed):
-        normal, calm, stressed = self.load_ibi_data(baseline_path, ibi_path_calm, ibi_path_stressed)
-        baseline = self.get_baseline(baseline_path)
-        normal_mean_rr = []
-        stressed_mean_rr = []
-        calm_mean_rr = []
-        for ibi in normal:
-            normal_mean_rr.append(self.data_clean.compute_mean_rr(ibi, baseline))
-        for ibi in stressed:
-            stressed_mean_rr.append(self.data_clean.compute_mean_rr(ibi, baseline))
-        for ibi in calm:
-            calm_mean_rr.append(self.data_clean.compute_mean_rr(ibi, baseline))
-        min_len = min(len(normal_mean_rr), len(stressed_mean_rr), len(calm_mean_rr))
-        idx = len(normal_mean_rr) - min_len
-        normal_mean_rr = normal_mean_rr[idx:]
-        idx = len(stressed_mean_rr) - min_len
-        stressed_mean_rr = stressed_mean_rr[idx:]
-        idx = len(calm_mean_rr) - min_len
-        calm_mean_rr = calm_mean_rr[idx:]
-        fig, ax = plt.subplots()
-        ax.plot(normal_mean_rr, label='Normal', color='green')
-        ax.plot(stressed_mean_rr, label='Stressed', color='blue')
-        ax.plot(calm_mean_rr, label='Calm', color='orange')
-        plt.title('Mean RR comparison')
-        legend = ax.legend(loc='center right', fontsize='x-large')
-        fig.savefig('Mean_rr_comparison_plot_alina.png')
         fig.savefig(measure + '_threshold_plot_kathrin.png')
 
     def define_meanrr_thresholds(self):
@@ -159,33 +106,13 @@ class ThresholdsEval:
     def define_prr20_thresholds(self):
         pass
 
-    def visualize_avg_baseline(self, path):
-        eda_values = pd.read_csv(path, skiprows=1).iloc[::40, :]
-        baseline = 0.0
-        counter = 0
-        all_baselines = []
-        for eda in eda_values.iterrows():
-            current_value = eda[1][0]
-            if baseline == 0.0:
-                baseline = current_value
-            else:
-                baseline = float(np.divide((np.add(np.multiply(baseline, counter), current_value)), (counter + 1)))
-            all_baselines.append(baseline)
-        fig, ax = plt.subplots()
-        ax.plot(all_baselines, label='avg baseline', color='blue')
-        plt.title('EDA Baseline Long Time Average')
-        fig.savefig('Baseline_plot_eda.png')
-
 
 if __name__ == '__main__':
     evaluate = ThresholdsEval()
     measure = 'EDA'
-    base_path = '../../../../../test_data/10.07.2020_Alina_Coding/' + measure + '.csv'
-    data_path_stress = '../../../../../test_data/Alina_Stresstest_Silence/' + measure + '.csv'
-    data_path_calm = '../../../../../test_data/20.07.2020_Alina_Relaxed/' + measure + '.csv'
-    evaluate.define_meanrr_thresholds(base_path, data_path_calm, data_path_stress)
+    base_path = '../../../../../test_data/typing/' + measure + '.csv'
+    data_path_stress = '../../../../../test_data/Kathrin_stresstest_2020-07-10/' + measure + '.csv'
+    data_path_calm = '../../../../../test_data/too_relaxed/' + measure + '.csv'
     evaluate.define_eda_thresholds(measure, baseline_path=base_path, data_calm=data_path_calm, data_stressed=data_path_stress)
-    # random_path = '../../../../../test_data/random_recording/' + measure + '.csv'
-    # evaluate.visualize_avg_baseline(random_path)
 
 
