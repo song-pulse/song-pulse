@@ -4,7 +4,7 @@ import numpy as np
 def process_acc(acc_values):
     prev_raw_acc = acc_values[0]
     summarized_accs = []
-    prev_cumulated_acc = [0.0]
+    prev_cumulated_acc = []
     for value in acc_values:
         summarized_acc = max(abs(value['x'] - prev_raw_acc['x']), abs(value['y'] - prev_raw_acc['y']),
                              abs(value['z'] - prev_raw_acc['z']))
@@ -14,7 +14,11 @@ def process_acc(acc_values):
         summarized_accs.append(summarized_acc)
         print('summarized acc')
         print(summarized_accs)
-        filtered_acc = prev_cumulated_acc[-1] * 0.9 + (sum(summarized_accs) / float(len(summarized_accs)) * 0.1)
+
+        if len(prev_cumulated_acc) > 0:
+            filtered_acc = prev_cumulated_acc[-1] * 0.9 + (sum(summarized_accs) / float(len(summarized_accs)) * 0.1)
+        else:
+            filtered_acc = sum(summarized_accs) / float(len(summarized_accs)) * 0.1
         prev_cumulated_acc.append(filtered_acc)
         print(prev_cumulated_acc)
 

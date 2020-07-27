@@ -82,7 +82,7 @@ class StressChecker(object):
 
         # not enough values to determine anything, so we'll just assume balance.
         # we also have a calibration phase of 3 min
-        if 0.0 in data.ibiValues or len(data.ibiValues) < 18:
+        if 0.0 in data.ibiValues or len(data.ibiValues) < 9:
             print("calibrating")
             return None
 

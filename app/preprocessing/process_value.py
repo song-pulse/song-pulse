@@ -52,14 +52,14 @@ class ProcessValue:
     @staticmethod
     def get_historic_acc(db_session: Session, timestamp: int, rec_id: int) -> List[Value]:
         file_id = crud.file.get_id_for_recording_and_name(db_session, rec_id, "ACC")
-        return crud.value.get_prev(db_session, file_id, timestamp, 2)
+        return crud.value.get_prev(db_session, file_id, timestamp, 9)
 
     @staticmethod
     def get_historic_ibi(db_session: Session, timestamp: int, rec_id: int) -> List[Value]:
         file_id = crud.file.get_id_for_recording_and_name(db_session, rec_id, "IBI")
-        return crud.value.get_prev(db_session, file_id, timestamp, 18)
+        return crud.value.get_prev(db_session, file_id, timestamp, 9)
 
     @staticmethod
     def get_historic_eda(db_session: Session, timestamp: int, rec_id: int) -> List[Value]:
         file_id = crud.file.get_id_for_recording_and_name(db_session, rec_id, "EDA")
-        return crud.value.get_prev(db_session, file_id, timestamp, 18)
+        return crud.value.get_prev(db_session, file_id, timestamp, 9)

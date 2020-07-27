@@ -1,7 +1,8 @@
 from unittest import TestCase
-from app.tests.preprocessing.dummy_data import Settings, Data
-from app.preprocessing.unused.data_preprocess import DataCleaning
+
 from app.preprocessing.stress_validation import process_acc, detect_movement
+from app.preprocessing.unused.data_preprocess import DataCleaning
+from app.tests.preprocessing.dummy_data import Settings, Data
 
 
 class PreprocessingTest(TestCase):
@@ -56,7 +57,7 @@ class PreprocessingTest(TestCase):
                       {'x': 0, 'y': 0, 'z': 0},
                       {'x': 1, 'y': 7, 'z': 50}]
         cumulated_acc = process_acc(acc_values)
-        self.assertEqual([0.0, 0.0, 0.0, 1.666666666666667], cumulated_acc)
+        self.assertEqual([0.0, 0.0, 1.666666666666667], cumulated_acc)
 
     def test_process_acc_constant_move(self):
         acc_values = [{'x': 1, 'y': 7, 'z': 50},
@@ -69,7 +70,7 @@ class PreprocessingTest(TestCase):
                       ]
 
         cumulated_acc = process_acc(acc_values)
-        self.assertEqual([0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], cumulated_acc)
+        self.assertEqual([0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], cumulated_acc)
 
     def test_preprocess_acc_move(self):
         acc_values = [{'x': 1, 'y': 7, 'z': 50},
@@ -82,7 +83,7 @@ class PreprocessingTest(TestCase):
         cumulated_acc = process_acc(acc_values)
         print('cumulated acc')
         print(cumulated_acc)
-        self.assertEqual([0.0, 0.0, 1.5, 2.6833333333333336, 3.7650000000000006,
+        self.assertEqual([0.0, 1.5, 2.6833333333333336, 3.7650000000000006,
                           4.7685, 5.624983333333335, 6.476770714285716], cumulated_acc)
 
     def test_detect_movement_false(self):
