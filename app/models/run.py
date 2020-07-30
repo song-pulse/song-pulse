@@ -12,3 +12,5 @@ class Run(Base):
     is_running = Column(Boolean)
 
     results = relationship("Result", cascade="all,delete")
+    ranges = relationship("Range", cascade="all,delete")
+    tendencies = relationship("Tendency", cascade="all,delete")
