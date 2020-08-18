@@ -5,8 +5,8 @@ from sqlalchemy.orm import Session
 from app import crud
 from app.api import deps
 from app.models.value import Value
-from app.preprocessing.data_for_time import DataForTime
-from app.preprocessing.data_preprocess_perecentile import StressChecker
+from app.processing.data_for_time import DataForTime
+from app.processing.indicator_calculation import StressChecker
 from app.schemas.timestamp_values import TimestampValues
 from app.spotify.song_queuer import queue
 
@@ -50,16 +50,16 @@ class ProcessValue:
         return data
 
     @staticmethod
-    def get_historic_acc(db_session: Session, timestamp: int, rec_id: int) -> List[Value]:
+    def get_historic_acc(db_session: Session, timestamp: int, rec_id: int, limit: int = 9) -> List[Value]:
         file_id = crud.file.get_id_for_recording_and_name(db_session, rec_id, "ACC")
-        return crud.value.get_prev(db_session, file_id, timestamp, 9)
+        return crud.value.get_prev(db_session, file_id, timestamp, limit)
 
     @staticmethod
-    def get_historic_ibi(db_session: Session, timestamp: int, rec_id: int) -> List[Value]:
+    def get_historic_ibi(db_session: Session, timestamp: int, rec_id: int, limit: int = 9) -> List[Value]:
         file_id = crud.file.get_id_for_recording_and_name(db_session, rec_id, "IBI")
-        return crud.value.get_prev(db_session, file_id, timestamp, 9)
+        return crud.value.get_prev(db_session, file_id, timestamp, limit)
 
     @staticmethod
-    def get_historic_eda(db_session: Session, timestamp: int, rec_id: int) -> List[Value]:
+    def get_historic_eda(db_session: Session, timestamp: int, rec_id: int, limit: int = 9) -> List[Value]:
         file_id = crud.file.get_id_for_recording_and_name(db_session, rec_id, "EDA")
-        return crud.value.get_prev(db_session, file_id, timestamp, 9)
+        return crud.value.get_prev(db_session, file_id, timestamp, limit)

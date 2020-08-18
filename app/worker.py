@@ -1,6 +1,6 @@
 from app.core.celery_app import celery_app
-from app.preprocessing.process_value import ProcessValue
-from app.preprocessing.stream import Stream
+from app.processing.start.process_value import ProcessValue
+from app.processing.start.stream import Stream
 from app.schemas.timestamp_values import TimestampValues
 
 

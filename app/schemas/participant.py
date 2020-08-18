@@ -2,7 +2,6 @@ from typing import List
 
 from pydantic import BaseModel
 
-from .baseline import Baseline
 from .playlist import Playlist
 from .recording import Recording
 
@@ -24,7 +23,6 @@ class ParticipantInDBBase(ParticipantBase):
 
     recordings: List[Recording] = []
     playlists: List[Playlist] = []
-    baselines: List[Baseline] = []
 
     class Config:
         orm_mode = True

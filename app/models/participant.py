@@ -12,4 +12,3 @@ class Participant(Base):
 
     recordings = relationship("Recording", cascade="all,delete")
     playlists = relationship("Playlist", cascade="all,delete")
-    baselines = relationship("Baseline", cascade="all,delete")

@@ -1,7 +1,7 @@
 from app import crud
 from app.api import deps
-from app.preprocessing.data_for_time import DataForTime
-from app.preprocessing.data_preprocess_perecentile import StressChecker
+from app.processing.data_for_time import DataForTime
+from app.processing.indicator_calculation import StressChecker
 from app.spotify.song_queuer import is_queue_finished, queue
 
 

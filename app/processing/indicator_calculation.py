@@ -3,9 +3,9 @@ from collections import Counter
 from sqlalchemy.orm import Session
 
 from app import crud
-from app.preprocessing.data_for_time import DataForTime
-from app.preprocessing.min_max_detector import MinMaxDetector
-from app.preprocessing.stress_validation import detect_movement
+from app.processing.data_for_time import DataForTime
+from app.processing.min_max_detector import MinMaxDetector
+from app.processing.stress_validation import detect_movement
 from app.schemas.tendency import TendencyCreate
 from app.spotify.song_queuer import is_queue_finished
 
@@ -37,8 +37,9 @@ def compute_mean_eda(eda_values):
     return sum(eda_values) / float(len(eda_values))
 
 
-def majority_vote(db_session: Session, run_id: int, limit: int = 6):
+def majority_vote(db_session: Session, run_id: int, limit: int = 6):  # one minute = 6 x 10sec
     tendencies = crud.tendency.get_prev(db_session, run_id, limit)
+    print(tendencies)
     raw_tendencies = []
     for tendency in tendencies:
         raw_tendencies.append(tendency.eda)

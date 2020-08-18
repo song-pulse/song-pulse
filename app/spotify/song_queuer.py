@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from app import crud
 from app.models.song import Song
-from app.preprocessing.data_for_time import DataForTime
+from app.processing.data_for_time import DataForTime
 from app.schemas.result import ResultCreate
 from app.spotify.spotify_connector import get_left_playtime, queue_song
 

@@ -52,10 +52,9 @@ def checkMinMaxEDA(min_value: float, max_value: float, current_value: float):
 
 def checkMinMaxRR(min_value: float, max_value: float, current_value: float):
     total_range = max_value - min_value
-    percentile10 = total_range / 10  # 10% from top
-    percentile2 = total_range / 10  # 1% from bottom
+    percentile10 = total_range / 10  # 10%
     top = max_value - percentile10
-    bottom = min_value + percentile2
+    bottom = min_value + percentile10
 
     if current_value <= bottom:
         return 2
