@@ -57,17 +57,20 @@ class StressChecker(object):
 
     def run(self, data: DataForTime):
 
-        # EDA
-        mean_eda = compute_mean_eda(data.edaValues)
-
         if detect_movement(acc_values=data.accValues, acc_threshold=self.settings.acc_threshold):
             return None
 
+        # EDA
+        mean_eda = compute_mean_eda(data.edaValues)
+        print("mean_eda " + str(mean_eda))
+
         # MeanRR
         mean_rr = compute_mean_rr(data.ibiValues)
+        print("mean_rr " + str(mean_rr))
 
         # PRR20
         prr_20 = compute_prr20(data.ibiValues)
+        print("prr_20 " + str(prr_20))
 
         eda_tendency, mean_rr_tendency, prr_20_tendency = self.detector.detect(db_session=self.db_session,
                                                                                eda_value=mean_eda,

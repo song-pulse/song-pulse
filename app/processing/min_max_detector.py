@@ -92,6 +92,7 @@ class MinMaxDetector:
             createNewRanges(db_session, range_names, run_id)
             ranges = crud.range.get_for_run(db_session=db_session, run_id=run_id)
 
+        print("ranges found " + str(ranges))
         for range in ranges:
             if range.name == range_names[0]:
                 eda_tendency = checkMinMaxEDA(range.min, range.max, eda_value)
