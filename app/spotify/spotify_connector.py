@@ -43,8 +43,8 @@ def add_songs_for_playlist(db, playlist_id: int, playlist_link: str):
 
     playlist = spotify.playlist(
         playlist_id=playlist_link.split("/").pop(-1).split("?").pop(0))  # ask spotify for tracks
-    if len(playlist.tracks.items) > 0:
-        for item in playlist.tracks.items:
+    for item in playlist.tracks.items:
+        if item.track:
             name = item.track.name + " - " + item.track.artists.pop().name
             link = item.track.href
             duration = item.track.duration_ms
