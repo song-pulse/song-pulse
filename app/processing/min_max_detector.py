@@ -6,6 +6,7 @@ from app.schemas.range import RangeUpdate, RangeCreate
 
 
 def createRangeUpdate(range: Range, new_min_max: float, min_changed: bool, max_changed: bool):
+    print("updated range" + str(new_min_max))
     if min_changed:
         # the longer the session the less change we want to see in the min max values
         return RangeUpdate(name=range.name,
@@ -38,10 +39,9 @@ def checkMinMaxChange(min_value: float, max_value: float, current_value: float):
 def checkMinMaxEDA(min_value: float, max_value: float, current_value: float):
     total_range = max_value - min_value
     percentile10 = total_range / 10  # 10% from bottom
-    percentile2 = total_range / 10  # 1% from top
-    top = max_value - percentile2
+    top = max_value - percentile10
     bottom = min_value + percentile10
-
+    print("min/max EDA" + str(current_value))
     if current_value <= bottom:
         return 0
     if current_value >= top:
@@ -55,7 +55,7 @@ def checkMinMaxRR(min_value: float, max_value: float, current_value: float):
     percentile10 = total_range / 10  # 10%
     top = max_value - percentile10
     bottom = min_value + percentile10
-
+    print("min/max RR" + str(current_value))
     if current_value <= bottom:
         return 2
     if current_value >= top:
