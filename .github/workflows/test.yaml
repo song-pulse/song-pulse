@@ -13,7 +13,7 @@ jobs:
       - name: Build the stack
         run: docker-compose build db web
       - name: Start the stack
-        run: docker-compose up --no-deps -d db web
+        run: docker-compose run --no-deps -d db web
       - name: Sleep
         uses: jakejarvis/wait-action@master
         with:
