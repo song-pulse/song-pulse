@@ -9,7 +9,7 @@ from app.schemas.timestamp_values import TimestampValues
 from app.schemas.value import ValueCreate
 
 
-class TestLearningWrapper(TestCase):
+class TestProcessValue(TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:

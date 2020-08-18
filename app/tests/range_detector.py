@@ -2,18 +2,12 @@ from unittest import TestCase
 
 from app import crud
 from app.api import deps
-from app.processing.indicator_calculation import compute_prr20, compute_mean_rr, compute_mean_eda, majority_vote
 from app.processing.min_max_detector import MinMaxDetector
-from app.processing.start.process_value import ProcessValue
-from app.schemas.file import FileCreate
 from app.schemas.recording import RecordingCreate
 from app.schemas.run import RunCreate
-from app.schemas.tendency import TendencyCreate
-from app.schemas.timestamp_values import TimestampValues
-from app.schemas.value import ValueCreate
 
 
-class TestLearningWrapper(TestCase):
+class TestRangeDetector(TestCase):
 
     def test_min_max_detection(self) -> None:
         db_session = next(deps.get_db())

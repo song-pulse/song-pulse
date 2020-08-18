@@ -3,16 +3,12 @@ from unittest import TestCase
 from app import crud
 from app.api import deps
 from app.processing.indicator_calculation import compute_prr20, compute_mean_rr, compute_mean_eda, majority_vote
-from app.processing.start.process_value import ProcessValue
-from app.schemas.file import FileCreate
 from app.schemas.recording import RecordingCreate
 from app.schemas.run import RunCreate
 from app.schemas.tendency import TendencyCreate
-from app.schemas.timestamp_values import TimestampValues
-from app.schemas.value import ValueCreate
 
 
-class TestLearningWrapper(TestCase):
+class TestPreprocessing(TestCase):
 
     def test_compute_prr20_first(self) -> None:
         self.assertEqual(0, compute_prr20([0.93456432]))
