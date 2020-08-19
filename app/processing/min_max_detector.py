@@ -5,13 +5,15 @@ from app.models.range import Range
 from app.schemas.range import RangeUpdate, RangeCreate
 
 
-def createRangeUpdate(range: Range, new_min_max: float, min_changed: bool, max_changed: bool):
+def createRangeUpdate(range: Range, new_min_max: float, min_changed: bool, max_changed: bool) -> RangeUpdate:
     print("updated range" + str(new_min_max))
     if min_changed:
         # the longer the session the less change we want to see in the min max values
         return RangeUpdate(name=range.name,
+                           counter_max=range.counter_max,
                            counter_min=range.counter_min + 1,
-                           min=new_min_max
+                           min=new_min_max,
+                           max=range.max
                            )
     if max_changed:
         if range.counter_max == 0:
@@ -24,7 +26,9 @@ def createRangeUpdate(range: Range, new_min_max: float, min_changed: bool, max_c
         else:
             return RangeUpdate(name=range.name,
                                counter_max=range.counter_max + 1,
+                               counter_min=range.counter_min + 1,
                                max=new_min_max,
+                               min=range.min
                                )
 
 
@@ -73,9 +77,10 @@ def createNewRanges(db_session: Session, range_names: [str], run_id: int):
 def update_range_if_needed(range: Range, db_session: Session, current_value: float):
     max_changed, min_changed = checkMinMaxChange(range.min, range.max, current_value)
     if max_changed or min_changed:
+        upd_range = createRangeUpdate(range, current_value, min_changed, max_changed)
         crud.range.update(db_session=db_session,
                           db_obj=range,
-                          obj_in=createRangeUpdate(range, current_value, min_changed, max_changed))
+                          obj_in=upd_range)
 
 
 class MinMaxDetector:
