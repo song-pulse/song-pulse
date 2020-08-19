@@ -9,26 +9,21 @@ def createRangeUpdate(range: Range, new_min_max: float, min_changed: bool, max_c
     print("updated range" + str(new_min_max))
     if min_changed:
         # the longer the session the less change we want to see in the min max values
-        return RangeUpdate(name=range.name,
-                           counter_max=range.counter_max,
+        return RangeUpdate(counter_max=range.counter_max,
                            counter_min=range.counter_min + 1,
                            min=new_min_max,
-                           max=range.max
                            )
     if max_changed:
         if range.counter_max == 0:
-            return RangeUpdate(name=range.name,
-                               counter_max=range.counter_max + 1,
+            return RangeUpdate(counter_max=range.counter_max + 1,
                                counter_min=range.counter_min + 1,
                                max=new_min_max,
                                min=new_min_max
                                )
         else:
-            return RangeUpdate(name=range.name,
-                               counter_max=range.counter_max + 1,
+            return RangeUpdate(counter_max=range.counter_max + 1,
                                counter_min=range.counter_min + 1,
                                max=new_min_max,
-                               min=range.min
                                )
 
 
@@ -81,6 +76,7 @@ def update_range_if_needed(range: Range, db_session: Session, current_value: flo
         crud.range.update(db_session=db_session,
                           db_obj=range,
                           obj_in=upd_range)
+        print("updated!")
 
 
 class MinMaxDetector:
